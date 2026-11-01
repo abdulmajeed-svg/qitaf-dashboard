@@ -11,7 +11,8 @@ export function GlossaryButton({ role }: { role: Role }) {
   const [open, setOpen] = useState(false);
   const first = ROLE_FIRST[role];
   const sections = [...first, ...SECTION_ORDER.filter((s) => !first.includes(s))];
-  const entries = Object.values(METRICS) as Metric[];
+  // The HR assessment is admin-only, so only admins get its explanation.
+  const entries = (Object.values(METRICS) as Metric[]).filter((m) => role === "ADMIN" || m !== METRICS["company.org"]);
 
   return (
     <>
