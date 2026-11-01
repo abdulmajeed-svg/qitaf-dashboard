@@ -107,8 +107,8 @@ export const METRICS = {
     text: "Received points → Tried to redeem → Redeemed, based on what employees reported in the survey, not on verified STC transactions. Reasons for not redeeming are shown only when there are at least the minimum number of valid responses.",
   },
   "company.org": {
-    section: "Company results", title: "HR and IT assessment",
-    text: "Answers from one authorised HR and one IT person at the company. Submitted / Not submitted / Not applicable (the form doesn’t apply to this company). Scores run from 1 (lowest) to 5 (highest).",
+    section: "Company results", title: "HR assessment",
+    text: "Answers from one authorised HR person at the company. Submitted / Not submitted. Scores run from 1 (lowest) to 5 (highest).",
   },
   "company.actions": {
     section: "Company results", title: "Actions",

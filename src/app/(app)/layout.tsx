@@ -93,7 +93,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
           <div className="who">
-            <span className="demo-flag">Fictional demo data</span>
             <GlossaryButton role={profile.role} />
             <ThemeToggle />
             <span className="small muted">{profile.email}</span>

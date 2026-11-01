@@ -36,7 +36,6 @@ function LoginForm() {
         </div>
         <h1>Sign in</h1>
         <p className="muted">Qitaf Insights: see your rewards results.</p>
-        <p><span className="demo-flag">Fictional demo data</span></p>
         <div className="field">
           <label htmlFor="email">Email</label>
           <input id="email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />

@@ -50,7 +50,7 @@ function DrawerBody({ company, onClose }: { company: PortfolioCompany; onClose: 
         <div>
           <h2 style={{ fontSize: 24, fontWeight: 600 }}>{company.name}</h2>
           <div className="small muted" style={{ marginTop: 6 }}>
-            {data ? <>Wave {data.wave.wave_id}. <ReportChip status={data.status} n={data.kpi.responded} min={minResponses(data.min_responses)} /></> : "Loading full results"}
+            {data ? null : "Loading full results"}
           </div>
         </div>
         <button type="button" className="btn-ghost" onClick={onClose} data-autofocus aria-label={`Close ${company.name} results`}>

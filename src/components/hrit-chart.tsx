@@ -53,14 +53,12 @@ function GroupChart({ group, items }: { group: string; items: OrgItem[] }) {
 }
 
 export function HrItChart({ org }: { org: Org }) {
-  // HR and IT always get a group; any other group (for example Finance) appears only if it has answers.
-  const names = ["HR", "IT"];
-  for (const it of org.items) if (!names.includes(it.group)) names.push(it.group);
-  const statusOf = (g: string): OrgStatus => (g === "HR" ? org.hr_status : g === "IT" ? org.it_status : org.finance_status);
+  // The database still returns IT and Finance items; this page shows HR only.
+  const names = ["HR"];
 
   const groups = names.map((g) => {
     const mine = org.items.filter((i) => i.group === g); // keeps the original question order
-    return { g, status: statusOf(g), scored: mine.filter(isScored), answers: mine.filter((i) => !isScored(i)) };
+    return { g, status: org.hr_status, scored: mine.filter(isScored), answers: mine.filter((i) => !isScored(i)) };
   });
 
   return (
@@ -72,10 +70,10 @@ export function HrItChart({ org }: { org: Org }) {
         </section>
       ))}
 
-      <p className="small muted" style={{ margin: 0 }}>Answers from one authorised HR and one IT respondent.</p>
+      <p className="small muted" style={{ margin: 0 }}>Answers from one authorised HR respondent.</p>
 
       <div className="pills-cols">
-        {groups.filter((x) => x.g === "HR" || x.g === "IT" || x.answers.length).map(({ g, answers }) => (
+        {groups.map(({ g, answers }) => (
           <div key={g}>
             <h4 className="pills-title">{g}</h4>
             {answers.length ? (

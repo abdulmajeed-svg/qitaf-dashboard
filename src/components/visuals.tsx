@@ -219,7 +219,7 @@ export function ErrorCard({ message, onRetry }: { message: string; onRetry: () =
   );
 }
 
-export function PageHead({ title, info, sub, extra, updated, onRefresh, fmt }: {
+export function PageHead({ title, info, sub, extra, onRefresh }: {
   title: ReactNode; info?: MetricId; sub?: ReactNode; extra?: ReactNode; updated: Date | null; onRefresh: () => void;
   fmt: (d: Date) => string;
 }) {
@@ -231,8 +231,6 @@ export function PageHead({ title, info, sub, extra, updated, onRefresh, fmt }: {
       </div>
       <div className="refresh">
         {extra}
-        <span className="live" title="Refreshes every 20 seconds"><i aria-hidden="true" />Live</span>
-        <span className="small muted">{updated ? `Updated ${fmt(updated)}` : ""}</span>
         <button type="button" className="btn-ghost" onClick={onRefresh}>Refresh</button>
       </div>
     </div>

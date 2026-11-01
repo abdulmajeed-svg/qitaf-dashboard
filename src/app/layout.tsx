@@ -7,7 +7,7 @@ const sora = Sora({ subsets: ["latin"], weight: ["400", "500", "600", "700", "80
 
 export const metadata: Metadata = {
   title: "Qitaf Insights",
-  description: "Qitaf employee rewards survey results (fictional demo data)",
+  description: "Qitaf employee rewards survey results",
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
