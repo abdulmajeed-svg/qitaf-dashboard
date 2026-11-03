@@ -4,7 +4,7 @@ import { barrierText, minResponses, responseRateTip, validResponses } from "@/li
 import { useProfile } from "@/lib/profile-context";
 import type { CompanyDashboard } from "@/lib/types";
 import {
-  AnimatedNumber, Blocks, FlashPanel, FunnelChart, H2, Kpi, OrgChip, Ring, ScoreDots, StateCard,
+  AnimatedNumber, Blocks, FlashPanel, FunnelChart, H2, Kpi, OrgChip, Ring, ScoreDots, StateCard, underMinText,
 } from "./visuals";
 import { InfoButton } from "./info-button";
 import { HrItChart } from "./hrit-chart";
@@ -93,9 +93,9 @@ export function CompanyView({ d }: { d: CompanyDashboard }) {
   const k = d.kpi;
   const min = minResponses(d.min_responses); // threshold for this survey round, from the database
   const f = d.funnel;
-  const scores = d.items.filter((i) => i.code !== "A07"); // "Feeling appreciated" is left out of this list
-  // Items arrive sorted best -> worst with hidden last, so the lowest visible one is the last visible one.
-  const lowest = [...scores].reverse().find((i) => i.score !== null);
+  // "Feeling appreciated" (A07) gets its own card, so it is left out of the scores list.
+  const appreciated = d.items.find((i) => i.code === "A07");
+  const scores = d.items.filter((i) => i.code !== "A07");
   const redeemedAll = f && f.received ? Math.round((f.succeeded / f.received) * 100) : null;
 
   return (
@@ -147,9 +147,10 @@ export function CompanyView({ d }: { d: CompanyDashboard }) {
                 </div>
               ) : null}
             </Kpi>
-            {lowest && lowest.score !== null ? (
-              <Kpi label="Lowest score" info="company.lowest" value={<AnimatedNumber value={lowest.score} decimals={1} suffix=" / 5" />} watch={lowest.score}
-                note={lowest.label} />
+            {appreciated ? (
+              <Kpi label="Feeling appreciated" info="company.appreciated" watch={appreciated.score}
+                value={appreciated.score !== null ? <AnimatedNumber value={appreciated.score} decimals={1} suffix=" / 5" /> : "—"}
+                note={appreciated.score !== null ? validResponses(appreciated.n) : `Hidden: ${underMinText(min)}`} />
             ) : null}
           </section>
 

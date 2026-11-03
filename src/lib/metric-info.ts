@@ -94,9 +94,9 @@ export const METRICS = {
     section: "Company results", title: "Redeemed successfully",
     text: "Employees who said redeeming worked ÷ employees who received points. “% of those who tried” = successful ÷ those who tried (shown only when at least the minimum number of people tried).",
   },
-  "company.lowest": {
-    section: "Company results", title: "Lowest score",
-    text: "The lowest of the visible experience scores.",
+  "company.appreciated": {
+    section: "Company results", title: "Feeling appreciated",
+    text: "Average employee rating for “Feeling appreciated”, from 1 (lowest) to 5 (highest). Hidden when fewer than the minimum number of valid responses answered this question.",
   },
   "company.scores": {
     section: "Company results", title: "Experience scores",
