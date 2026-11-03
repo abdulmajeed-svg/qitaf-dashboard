@@ -64,7 +64,7 @@ export function Blocks({ pct }: { pct: number }) {
 // `min` = the survey round's minimum number of valid responses; without it (STC pooled view) the text stays generic.
 export const underMinText = (min?: number) => (min ? `fewer than ${min} valid responses` : "fewer than the minimum number of valid responses");
 
-export function ScoreDots({ items, min }: { items: Item[]; min?: number }) {
+export function ScoreDots({ items, min, suffix = "" }: { items: Item[]; min?: number; suffix?: string }) {
   const entered = useEntered();
   return (
     <div className="dots">
@@ -88,7 +88,7 @@ export function ScoreDots({ items, min }: { items: Item[]; min?: number }) {
               <span className="fill" style={{ display: "block", width: `${pct}%`, background: col, ...delay }} />
               <span className="dot" style={{ left: `${pct}%`, background: col, ...delay }} />
             </Tip>
-            <span className="score">{it.score.toFixed(1)}</span>
+            <span className="score">{it.score.toFixed(1)}{suffix}</span>
           </div>
         );
       })}

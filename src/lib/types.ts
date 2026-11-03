@@ -73,6 +73,9 @@ export interface CompanyDashboard {
   items: Item[];
   funnel: Funnel | null;
   barriers: Barriers;
+  // Optional until get_company_dashboard returns it (see supabase/proposed-motivation.sql).
+  // Counts; n = up + same + down, "Prefer not to answer" left out. Null when below the minimum.
+  motivation?: { up: number; same: number; down: number; n: number } | null;
   org: {
     hr_status: OrgStatus;
     it_status: OrgStatus;

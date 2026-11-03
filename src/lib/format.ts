@@ -48,9 +48,13 @@ export const CODE_TEXT: Record<string, string> = {
   DUP: "Duplicate allocations", MISMATCH: "Records do not match",
 };
 
+// Reasons for not redeeming. Any code not listed here is shown as "Other", never as the raw code.
 export const BARRIER_TEXT: Record<string, string> = {
-  MERCHANT: "Merchant issue", TERMS: "Terms unclear", TECH: "Technical problem", SAVE: "Saving points",
+  SAVE: "Saving points for later", HOW: "Do not know how to redeem", BALANCE: "Balance is insufficient",
+  MERCHANT: "Merchants or options do not suit me", TERMS: "Unsure about the conditions or validity",
+  TECH: "Technical or access problem", TIME: "Have not had time", OTHER: "Other",
 };
+export const barrierText = (code: string) => BARRIER_TEXT[code] ?? BARRIER_TEXT.OTHER;
 
 export const AUDIENCE_TEXT: Record<string, string> = { A: "Employee", B: "HR", C: "Finance", D: "IT" };
 

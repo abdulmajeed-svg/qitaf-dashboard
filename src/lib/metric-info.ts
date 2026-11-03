@@ -104,7 +104,15 @@ export const METRICS = {
   },
   "company.journey": {
     section: "Company results", title: "Redemption journey",
-    text: "Received points → Tried to redeem → Redeemed, based on what employees reported in the survey, not on verified STC transactions. Reasons for not redeeming are shown only when there are at least the minimum number of valid responses.",
+    text: "Received points → Tried to redeem → Redeemed, based on what employees reported in the survey, not on verified STC transactions.",
+  },
+  "company.barriers": {
+    section: "Company results", title: "Why employees haven’t redeemed",
+    text: "Reasons employees gave for not redeeming their points. Each slice is one reason’s share of all reasons given; the list shows how many times it was given and its share. Shown only when there are at least the minimum number of valid responses.",
+  },
+  "company.motivation": {
+    section: "Company results", title: "Effect on motivation",
+    text: "How employees said the rewards changed their motivation. Increased = slightly or significantly more motivated; Decreased = slightly or significantly less. “Prefer not to answer” is left out of the percentages. Shown only when at least the minimum number of employees answered.",
   },
   "company.org": {
     section: "Company results", title: "HR assessment",
