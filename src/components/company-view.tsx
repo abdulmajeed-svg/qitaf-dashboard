@@ -17,6 +17,7 @@ const PIE_COLORS = [
   "var(--accent)", "var(--amber)", "var(--silver)", "var(--chip-ok-fg)",
   "color-mix(in srgb, var(--amber) 50%, var(--panel))", "color-mix(in srgb, var(--accent) 50%, var(--panel))",
   "color-mix(in srgb, var(--chip-ok-fg) 50%, var(--panel))", "var(--muted)",
+  "color-mix(in srgb, var(--silver) 50%, var(--panel))",
 ];
 
 // Pie of the reasons for not redeeming; the legend carries each reason's name, count and share.

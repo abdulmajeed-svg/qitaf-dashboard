@@ -53,6 +53,7 @@ export const BARRIER_TEXT: Record<string, string> = {
   SAVE: "Saving points for later", HOW: "Do not know how to redeem", BALANCE: "Balance is insufficient",
   MERCHANT: "Merchants or options do not suit me", TERMS: "Unsure about the conditions or validity",
   TECH: "Technical or access problem", TIME: "Have not had time", OTHER: "Other",
+  NOT_RECEIVED: "Did not think they received points", // from question A02, added to the barriers by the database
 };
 export const barrierText = (code: string) => BARRIER_TEXT[code] ?? BARRIER_TEXT.OTHER;
 

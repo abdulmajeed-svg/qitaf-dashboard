@@ -28,7 +28,7 @@
 --   select * from question_options where question_code = 'A08';
 --
 -- While you are there, the reason codes for "Why employees haven't redeemed" (question A04). The dashboard
--- maps SAVE, HOW, BALANCE, MERCHANT, TERMS, TECH, TIME and OTHER (src/lib/format.ts, BARRIER_TEXT);
+-- maps SAVE, HOW, BALANCE, MERCHANT, TERMS, TECH, TIME, OTHER and NOT_RECEIVED (src/lib/format.ts, BARRIER_TEXT);
 -- any other code shows as "Other". Compare with:
 --   select * from question_options where question_code = 'A04';
 
