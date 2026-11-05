@@ -52,5 +52,5 @@ export const SECTION_ORDER: Section[] = ["Portfolio", "Heatmap columns", "Compan
 export const ROLE_FIRST: Record<"ADMIN" | "COMPANY_HR" | "STC", Section[]> = {
   ADMIN: ["Portfolio", "Heatmap columns", "Company results", "STC view", "Review queue"],
   COMPANY_HR: ["Company results"],
-  STC: ["STC view", "Portfolio", "Heatmap columns", "Company results"],
+  STC: ["STC view", "Company results"],
 };

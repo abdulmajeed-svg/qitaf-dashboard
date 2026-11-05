@@ -42,9 +42,9 @@ export const NAV: Record<Role, { href: string; label: keyof Dict["nav"] }[]> = {
     { href: "/review", label: "reviewQueue" },
   ],
   COMPANY_HR: [{ href: "/company", label: "ourResults" }],
+  // Any page not listed for a role (for example /portfolio for STC) redirects to the role's first page.
   STC: [
     { href: "/stc", label: "programOverview" },
-    { href: "/portfolio", label: "portfolio" },
     { href: "/company", label: "companyResults" },
   ],
 };

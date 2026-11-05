@@ -38,7 +38,7 @@ function sortValue(c: PortfolioCompany, key: string): string | number | null {
 
 function DrawerBody({ company, onClose }: { company: PortfolioCompany; onClose: () => void }) {
   const { t } = useLang();
-  // Admin and STC: get_company_dashboard with the chosen company id (only they can open this page).
+  // Admin only: get_company_dashboard with the chosen company id (this page is admin-only).
   const { data, error, reload } = useRpcData<CompanyDashboard>(
     () => rpc("get_company_dashboard", { p_company: company.company_id }),
     company.company_id,
