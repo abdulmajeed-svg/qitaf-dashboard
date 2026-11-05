@@ -101,7 +101,14 @@ let companyNames = [];
     const generic = /Synthetic Co|TEST-\d+|Pilot Company/i.test(text);
     check(G, "get_stc_overview contains no company names", found.length === 0 && !generic,
       found.length ? `found: ${found.join(", ")}` : "looks like a company name or id");
-    await rpcErrors(G, sb, [["get_company_dashboard", { p_company: "TEST-012" }], ["get_portfolio"]]);
+    // STC sees companies like ADMIN (supabase/proposed-stc-access.sql), but not the review queue.
+    const pf = await sb.rpc("get_portfolio");
+    check(G, "get_portfolio works", !pf.error && !!pf.data?.kpi, brief(pf));
+    const list = await sb.rpc("list_companies");
+    check(G, "list_companies works", !list.error && Array.isArray(list.data), brief(list));
+    const dash = await sb.rpc("get_company_dashboard", { p_company: "TEST-012" });
+    check(G, "get_company_dashboard('TEST-012') works", !dash.error && dash.data?.company?.company_id === "TEST-012", brief(dash));
+    await rpcErrors(G, sb, [["get_review_queue"]]);
     await tablesBlocked(G, sb);
   }
 }

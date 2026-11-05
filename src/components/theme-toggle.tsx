@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLang } from "@/lib/lang-context";
 
 export const THEME_KEY = "qitaf-theme";
 
 export function ThemeToggle() {
+  const { t } = useLang();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
@@ -23,8 +25,8 @@ export function ThemeToggle() {
   }
 
   return (
-    <button type="button" className="btn-ghost" onClick={toggle} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
-      {theme === "dark" ? "Light" : "Dark"} theme
+    <button type="button" className="btn-ghost" onClick={toggle} aria-label={theme === "dark" ? t.theme.switchToLight : t.theme.switchToDark}>
+      {theme === "dark" ? t.theme.light : t.theme.dark}
     </button>
   );
 }

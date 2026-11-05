@@ -29,9 +29,11 @@ export interface Funnel {
   success_among_tried?: number | null;
 }
 
+export type BarrierCount = { reason: string; count: number };
+
 export type Barriers =
   | { suppressed: true; n: number }
-  | { reason: string; count: number }[]
+  | BarrierCount[]
   | null;
 
 export interface OrgItem {
@@ -114,6 +116,8 @@ export interface Portfolio {
   };
   companies: PortfolioCompany[];
   actions: ActionRow[];
+  // Optional until get_portfolio returns it (see supabase/proposed-combined-barriers.sql).
+  barriers?: BarrierCount[] | null;
   generated_at: string;
 }
 
@@ -137,6 +141,8 @@ export type StcOverview =
       items: Item[];
       funnel: Funnel;
       actions: ActionRow[];
+      // Optional until get_stc_overview returns it (see supabase/proposed-combined-barriers.sql).
+      barriers?: BarrierCount[] | null;
       generated_at: string;
     };
 

@@ -64,10 +64,12 @@
 
 /* Drawer */
 .drawer-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(5, 9, 16, .6); animation: fade-in .2s ease-out; }
-.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 101; width: min(980px, 100%); overflow-y: auto;
-  background: var(--bg); border-left: 1px solid var(--line); padding: 24px 24px 48px; animation: drawer-in .28s cubic-bezier(.2,.7,.2,1); }
+.drawer { position: fixed; top: 0; inset-inline-end: 0; bottom: 0; z-index: 101; width: min(980px, 100%); overflow-y: auto;
+  background: var(--bg); border-inline-start: 1px solid var(--line); padding: 24px 24px 48px; animation: drawer-in .28s cubic-bezier(.2,.7,.2,1); }
 .drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 @keyframes drawer-in { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+[dir="rtl"] .drawer { animation-name: drawer-in-rtl; }
+@keyframes drawer-in-rtl { from { transform: translateX(-40px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fade-in { from { opacity: 0; } }
 
 /* Portfolio controls */
@@ -79,7 +81,7 @@
 .th-btn:hover { color: var(--text); }
 tr.row-click { cursor: pointer; }
 tr.row-click:hover td { box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .06); }
-.row-btn { background: none; border: 0; color: var(--text); font: inherit; font-weight: 600; padding: 0; text-align: left; cursor: pointer; }
+.row-btn { background: none; border: 0; color: var(--text); font: inherit; font-weight: 600; padding: 0; text-align: start; cursor: pointer; }
 .row-btn:hover { text-decoration: underline; }
 .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
 
@@ -97,7 +99,7 @@ html { scrollbar-gutter: stable; }
 .table-box { overflow-anchor: none; scrollbar-width: thin; }
 
 /* Info buttons, popovers and glossary */
-.info-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-left: 4px; padding: 0;
+.info-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; margin-inline-start: 4px; padding: 0;
   border: 0; background: transparent; color: var(--muted); border-radius: 99px; cursor: pointer; vertical-align: middle; flex: none; }
 .info-btn:hover { color: var(--text); }
 .info-btn[aria-expanded="true"] { color: var(--accent); }
@@ -108,11 +110,11 @@ html { scrollbar-gutter: stable; }
 
 .info-pop { position: fixed; z-index: 260; width: min(340px, calc(100vw - 24px)); max-height: min(70vh, 480px); overflow-y: auto;
   background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 14px; padding: 16px 16px 14px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, .45); font-size: 13px; line-height: 1.5; font-weight: 400; text-align: left; white-space: normal; }
-.info-pop h3 { font-size: 14px; font-weight: 600; margin: 0 30px 8px 0; }
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .45); font-size: 13px; line-height: 1.5; font-weight: 400; text-align: start; white-space: normal; }
+.info-pop h3 { font-size: 14px; font-weight: 600; margin: 0 0 8px; margin-inline-end: 30px; }
 .info-pop p { margin: 0; color: var(--soft); }
 .info-part h4 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 12px 0 2px; }
-.info-close { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
+.info-close { position: absolute; top: 8px; inset-inline-end: 8px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0;
   border: 0; background: transparent; color: var(--muted); border-radius: 99px; cursor: pointer; }
 .info-close:hover { color: var(--text); }
 .info-backdrop { position: fixed; inset: 0; z-index: 255; background: rgba(5, 9, 16, .5); animation: fade-in .2s ease-out; }
@@ -153,6 +155,7 @@ html { scrollbar-gutter: stable; }
 
 /* Hero KPI glow, calm card hover (1px border, no size change) */
 .hero { background-image: radial-gradient(circle at 100px 50%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%); }
+[dir="rtl"] .hero { background-image: radial-gradient(circle at calc(100% - 100px) 50%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%); }
 .panel:hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
 
 /* Accent used as text must stay readable (AA) */
@@ -171,14 +174,17 @@ td.cell { box-shadow: inset 0 0 0 1px var(--bar-ring); }
 .hrit-label { font-size: 13.5px; }
 .hrit-track { position: relative; height: 16px; }
 .hrit-grid { position: absolute; top: -8px; bottom: -8px; width: 1px; background: var(--line); }
-.hrit-bar { position: absolute; left: 0; top: 2px; height: 12px; border-radius: 0 6px 6px 0; box-shadow: 0 0 0 1px var(--bar-ring);
+.hrit-bar { position: absolute; inset-inline-start: 0; top: 2px; height: 12px; border-radius: 0; border-start-end-radius: 6px; border-end-end-radius: 6px; box-shadow: 0 0 0 1px var(--bar-ring);
   transition: width .8s cubic-bezier(.2, .7, .2, 1); }
-.hrit-val { text-align: right; font-weight: 500; font-size: 13.5px; white-space: nowrap; }
+.hrit-val { text-align: end; font-weight: 500; font-size: 13.5px; white-space: nowrap; }
 .hrit-axis { display: grid; grid-template-columns: minmax(140px, 240px) 1fr 56px; gap: 12px; margin-top: 4px; }
 .hrit-ticks { position: relative; height: 18px; }
 .hrit-tick { position: absolute; transform: translateX(-50%); font-size: 11.5px; color: var(--muted); }
 .hrit-tick:last-child { transform: translateX(-100%); }
 .hrit-tick:first-child { transform: none; }
+[dir="rtl"] .hrit-tick { transform: translateX(50%); }
+[dir="rtl"] .hrit-tick:last-child { transform: translateX(100%); }
+[dir="rtl"] .hrit-tick:first-child { transform: none; }
 .hrit-empty { padding: 16px; border: 1px dashed var(--line); border-radius: var(--radius-sm); color: var(--muted); font-size: 13px; }
 .pills-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .pills-title { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }

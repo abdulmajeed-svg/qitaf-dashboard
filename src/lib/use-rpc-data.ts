@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "./toast";
+import { useLang } from "./lang-context";
 
 export const AUTO_REFRESH_SECONDS = 20;
 
@@ -16,6 +17,9 @@ export function useRpcData<T>(fetcher: () => Promise<T>, key: string | null) {
   const toast = useToast();
   const toastRef = useRef(toast);
   toastRef.current = toast;
+  const { t } = useLang();
+  const tRef = useRef(t);
+  tRef.current = t;
   const prevSig = useRef<string | null>(null);
   const generation = useRef(0);
 
@@ -25,14 +29,14 @@ export function useRpcData<T>(fetcher: () => Promise<T>, key: string | null) {
       const d = await fetcherRef.current();
       if (gen !== generation.current) return; // a newer key replaced this request
       const sig = JSON.stringify(d, (k, v) => (k === "generated_at" ? undefined : v));
-      if (prevSig.current !== null && prevSig.current !== sig) toastRef.current("Data updated");
+      if (prevSig.current !== null && prevSig.current !== sig) toastRef.current(tRef.current.common.dataUpdated);
       prevSig.current = sig;
       setData(d);
       setError(null);
       setUpdated(new Date());
     } catch (e) {
       if (gen !== generation.current) return;
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? e.message : tRef.current.common.somethingWrong);
     }
   }, []);
 

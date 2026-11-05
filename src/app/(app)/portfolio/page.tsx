@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
-import { ITEM_COLS, fmtDate, fmtTime, minResponses, responseRateTip, tileColors, validResponses } from "@/lib/format";
+import { ITEM_COLS, fmtDate, fmtTime, minResponses, tileColors } from "@/lib/format";
+import { DICT } from "@/lib/i18n";
+import { useLang } from "@/lib/lang-context";
 import { downloadCsv, today } from "@/lib/csv";
 import type { CompanyDashboard, Portfolio, PortfolioCompany } from "@/lib/types";
 import {
-  ActionsList, AnimatedNumber, ErrorCard, H2, Kpi, PageHead, PageSkeleton, ReportChip, actionStatusText, reportChipText,
+  ActionsList, AnimatedNumber, BarrierPie, ErrorCard, H2, Kpi, PageHead, PageSkeleton, ReportChip, actionStatusText,
 } from "@/components/visuals";
 import { CompanyView } from "@/components/company-view";
 import { Drawer } from "@/components/drawer";
@@ -18,13 +20,9 @@ import { itemMetricId, type MetricId } from "@/lib/metric-info";
 type Filter = "all" | "available" | "waiting" | "pilot";
 type Sort = { key: string; dir: "asc" | "desc" } | null;
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "available", label: "Results available" },
-  { id: "waiting", label: "Waiting for responses" },
-  { id: "pilot", label: "Pilot" },
-];
+const FILTERS: Filter[] = ["all", "available", "waiting", "pilot"];
 const STATUS_ORDER = { REPORTABLE: 0, SUPPRESSED: 1, NO_RESPONSES: 2 } as const;
+const CSV = DICT.en; // CSV files stay in English whatever the screen language
 
 // Sort value per column. null (hidden / not available) always sorts last and is never compared.
 function sortValue(c: PortfolioCompany, key: string): string | number | null {
@@ -39,7 +37,8 @@ function sortValue(c: PortfolioCompany, key: string): string | number | null {
 }
 
 function DrawerBody({ company, onClose }: { company: PortfolioCompany; onClose: () => void }) {
-  // Admin only: get_company_dashboard with the chosen company id (this page is admin-only).
+  const { t } = useLang();
+  // Admin and STC: get_company_dashboard with the chosen company id (only they can open this page).
   const { data, error, reload } = useRpcData<CompanyDashboard>(
     () => rpc("get_company_dashboard", { p_company: company.company_id }),
     company.company_id,
@@ -50,11 +49,11 @@ function DrawerBody({ company, onClose }: { company: PortfolioCompany; onClose: 
         <div>
           <h2 style={{ fontSize: 24, fontWeight: 600 }}>{company.name}</h2>
           <div className="small muted" style={{ marginTop: 6 }}>
-            {data ? null : "Loading full results"}
+            {data ? null : t.portfolio.loadingFull}
           </div>
         </div>
-        <button type="button" className="btn-ghost" onClick={onClose} data-autofocus aria-label={`Close ${company.name} results`}>
-          Close (Esc)
+        <button type="button" className="btn-ghost" onClick={onClose} data-autofocus aria-label={t.portfolio.closeResults(company.name)}>
+          {t.common.closeEsc}
         </button>
       </div>
       {error ? <ErrorCard message={error} onRetry={reload} /> : !data ? <PageSkeleton rows={3} /> : <CompanyView d={data} />}
@@ -63,6 +62,7 @@ function DrawerBody({ company, onClose }: { company: PortfolioCompany; onClose: 
 }
 
 export default function PortfolioPage() {
+  const { t } = useLang();
   const { data: d, error, updated, reload } = useRpcData<Portfolio>(() => rpc("get_portfolio"), "portfolio");
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -98,6 +98,9 @@ export default function PortfolioPage() {
   if (!d) return <PageSkeleton rows={5} />;
   const k = d.kpi;
   const open = d.companies.find((c) => c.company_id === openId) ?? null;
+  const filterLabel: Record<Filter, string> = {
+    all: t.portfolio.filterAll, available: t.portfolio.filterAvailable, waiting: t.portfolio.filterWaiting, pilot: t.portfolio.filterPilot,
+  };
 
   const toggleSort = (key: string) =>
     setSort((s) => (s && s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: key === "name" ? "asc" : "desc" }));
@@ -106,7 +109,7 @@ export default function PortfolioPage() {
   const th = (key: string, label: string, info?: MetricId, center?: boolean) => (
     <th key={key} aria-sort={ariaSort(key)} style={center ? { textAlign: "center" } : undefined}>
       <div className={`th-inner ${center ? "center" : ""}`}>
-        <button type="button" className="th-btn" onClick={() => toggleSort(key)} aria-label={`Sort by ${label}`}>
+        <button type="button" className="th-btn" onClick={() => toggleSort(key)} aria-label={t.portfolio.sortBy(label)}>
           {label}{sortMark(key)}
         </button>
         {info ? <InfoButton id={info} /> : null}
@@ -117,14 +120,14 @@ export default function PortfolioPage() {
   // CSV exports exactly the rows shown after search, filter and sort. Hidden stays "Hidden".
   const exportCompanies = () =>
     downloadCsv(`qitaf-portfolio-${today()}.csv`,
-      ["Company", "Pilot", "Results status", "Valid responses", "Response rate %", ...ITEM_COLS.map(([, l]) => l), "Satisfied %", "Open actions"],
+      ["Company", "Pilot", "Results status", "Valid responses", "Response rate %", ...ITEM_COLS.map((code) => CSV.itemShort[code]), "Satisfied %", "Open actions"],
       rows.map((c) => [
         c.name,
         c.record_type === "PILOT" ? "Yes" : "No",
-        reportChipText(c.status, c.responded, minResponses(c.min_responses)),
+        CSV.status.reportChip(c.status, c.responded, minResponses(c.min_responses)),
         c.responded,
         c.response_rate !== null ? c.response_rate : "Not confirmed",
-        ...ITEM_COLS.map(([code]) => {
+        ...ITEM_COLS.map((code) => {
           const v = c.items ? c.items[code] : null;
           return v === null || v === undefined ? "Hidden" : Number(v).toFixed(1);
         }),
@@ -139,92 +142,93 @@ export default function PortfolioPage() {
 
   return (
     <>
-      <PageHead title="Portfolio" sub="All companies in the program, their results status and follow-up."
+      <PageHead title={t.portfolio.title} sub={t.portfolio.sub}
         updated={updated} onRefresh={reload} fmt={fmtTime} />
       <section className="grid-row">
-        <Kpi label="Companies" info="portfolio.companies" value={<AnimatedNumber value={k.companies} />} watch={k.companies} note={`${k.reportable} with results available`} />
-        <Kpi label="Employee answers" info="portfolio.answers" value={<AnimatedNumber value={k.responses} />} watch={k.responses} note="Accepted answers" />
-        <Kpi label="Waiting for more responses" info="portfolio.below" value={<AnimatedNumber value={k.below_threshold} />} watch={k.below_threshold}
-          note="Fewer than the minimum valid responses" color="var(--amber)" />
-        <Kpi label="Open actions" info="portfolio.actions" value={<AnimatedNumber value={k.open_actions} />} watch={k.open_actions} note={`${k.high_priority} high priority`} />
-        <Kpi label="In review queue" info="portfolio.review" value={<AnimatedNumber value={k.in_review_queue} />} watch={k.in_review_queue}
-          note="Answers that failed validation" color={k.in_review_queue ? "var(--alert-text)" : undefined} />
+        <Kpi label={t.portfolio.companies} info="portfolio.companies" value={<AnimatedNumber value={k.companies} />} watch={k.companies} note={t.portfolio.companiesNote(k.reportable)} />
+        <Kpi label={t.portfolio.answers} info="portfolio.answers" value={<AnimatedNumber value={k.responses} />} watch={k.responses} note={t.portfolio.answersNote} />
+        <Kpi label={t.portfolio.below} info="portfolio.below" value={<AnimatedNumber value={k.below_threshold} />} watch={k.below_threshold}
+          note={t.portfolio.belowNote} color="var(--amber)" />
+        <Kpi label={t.portfolio.openActions} info="portfolio.actions" value={<AnimatedNumber value={k.open_actions} />} watch={k.open_actions} note={t.portfolio.highPriority(k.high_priority)} />
+        <Kpi label={t.portfolio.review} info="portfolio.review" value={<AnimatedNumber value={k.in_review_queue} />} watch={k.in_review_queue}
+          note={t.portfolio.reviewNote} color={k.in_review_queue ? "var(--alert-text)" : undefined} />
       </section>
 
       <section className="panel mt">
         <div className="panel-head">
           <div>
-            <H2 info="heat.colours">Company heatmap</H2>
-            <p className="section-sub">Average employee scores from 1 to 5. Hidden means the company has fewer than the minimum valid responses for its survey round. Select a company to see its full results.</p>
+            <H2 info="heat.colours">{t.portfolio.heatmap}</H2>
+            <p className="section-sub">{t.portfolio.heatmapSub}</p>
           </div>
-          <button type="button" className="btn-ghost" onClick={exportCompanies} disabled={!rows.length}>Download CSV</button>
+          <button type="button" className="btn-ghost" onClick={exportCompanies} disabled={!rows.length}>{t.portfolio.downloadCsv}</button>
         </div>
 
         <div className="toolbar">
-          <label className="sr-only" htmlFor="company-search">Search companies</label>
-          <input id="company-search" type="search" placeholder="Search companies" value={q} onChange={(e) => setQ(e.target.value)} />
-          <div role="group" aria-label="Filter by status" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {FILTERS.map((f) => (
-              <button key={f.id} type="button" className="filter-chip" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
-                {f.label}
+          <label className="sr-only" htmlFor="company-search">{t.portfolio.search}</label>
+          <input id="company-search" type="search" placeholder={t.portfolio.search} value={q} onChange={(e) => setQ(e.target.value)} />
+          <div role="group" aria-label={t.portfolio.filterAria} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {FILTERS.map((id) => (
+              <button key={id} type="button" className="filter-chip" aria-pressed={filter === id} onClick={() => setFilter(id)}>
+                {filterLabel[id]}
               </button>
             ))}
           </div>
-          <span className="small muted" role="status">{rows.length} of {d.companies.length} companies</span>
+          <span className="small muted" role="status">{t.portfolio.shown(rows.length, d.companies.length)}</span>
         </div>
 
         <div className="table-box">
           <table>
             <thead>
               <tr>
-                {th("name", "Company")}
-                {th("status", "Results status", "heat.status")}
-                {th("rate", "Response rate", "heat.rate")}
-                {ITEM_COLS.map(([code, l]) => th(code, l, itemMetricId(code), true))}
-                {th("csat", "Satisfied", "heat.satisfied", true)}
-                {th("actions", "Actions", "heat.actions", true)}
+                {th("name", t.portfolio.colCompany)}
+                {th("status", t.portfolio.colStatus, "heat.status")}
+                {th("rate", t.portfolio.colRate, "heat.rate")}
+                {ITEM_COLS.map((code) => th(code, t.itemShort[code], itemMetricId(code), true))}
+                {th("csat", t.portfolio.colSatisfied, "heat.satisfied", true)}
+                {th("actions", t.portfolio.colActions, "heat.actions", true)}
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
-                <tr><td colSpan={11} className="muted" style={{ textAlign: "center", borderRadius: 10 }}>No companies match.</td></tr>
+                <tr><td colSpan={11} className="muted" style={{ textAlign: "center", borderRadius: 10 }}>{t.portfolio.noMatch}</td></tr>
               ) : rows.map((c) => (
                 <tr key={c.company_id} className="row-click" onClick={() => setOpenId(c.company_id)}>
                   <td>
                     <button type="button" className="row-btn" onClick={(e) => { e.stopPropagation(); setOpenId(c.company_id); }}
-                      aria-haspopup="dialog" aria-label={`Open full results for ${c.name}`}>
+                      aria-haspopup="dialog" aria-label={t.portfolio.openResults(c.name)}>
                       {c.name}
                     </button>
-                    {c.record_type === "PILOT" ? <> <span className="chip chip-off">Pilot</span></> : null}
-                    <div className="small muted">{validResponses(c.responded)}</div>
+                    {c.record_type === "PILOT" ? <> <span className="chip chip-off">{t.portfolio.pilot}</span></> : null}
+                    <div className="small muted">{t.common.validResponses(c.responded)}</div>
                   </td>
                   <td><ReportChip status={c.status} n={c.responded} min={minResponses(c.min_responses)} /></td>
                   <td>
-                    <Tip text={responseRateTip(c.invited, c.responded, c.response_rate)}>
+                    <Tip text={t.common.rateTip(c.invited, c.responded, c.response_rate)}>
                       {c.response_rate !== null && c.invited !== null ? (
                         <>
                           <div className="rate">
                             <div className="bar"><i style={{ width: `${Math.min(c.response_rate, 100)}%` }} /></div>
                             {c.response_rate}%
                           </div>
-                          <div className="small muted" style={{ marginTop: 4 }}>{c.responded} of {c.invited}</div>
+                          <div className="small muted" style={{ marginTop: 4 }}>{t.portfolio.rateOf(c.responded, c.invited)}</div>
                         </>
-                      ) : <span className="small muted">Invited not confirmed</span>}
+                      ) : <span className="small muted">{t.portfolio.invitedNotConfirmed}</span>}
                     </Tip>
                   </td>
-                  {ITEM_COLS.map(([code, label]) => {
+                  {ITEM_COLS.map((code) => {
+                    const label = t.itemShort[code];
                     const v = c.items ? c.items[code] : null;
                     if (v === null || v === undefined) {
                       return (
                         <td key={code} className="cell-hidden">
-                          <Tip text={`${c.name}, ${label}: Hidden: fewer than ${minResponses(c.min_responses)} valid responses`}>Hidden</Tip>
+                          <Tip text={t.portfolio.hiddenCellTip(c.name, label, minResponses(c.min_responses))}>{t.common.hidden}</Tip>
                         </td>
                       );
                     }
                     const [bg, fg] = tileColors(v);
                     return (
                       <td key={code} className="cell" style={{ background: bg, color: fg }}>
-                        <Tip text={`${c.name}, ${label}: ${Number(v).toFixed(1)} out of 5, ${validResponses(c.responded)} in this company`}>
+                        <Tip text={t.portfolio.cellTip(c.name, label, Number(v).toFixed(1), c.responded)}>
                           {Number(v).toFixed(1)}
                         </Tip>
                       </td>
@@ -241,20 +245,28 @@ export default function PortfolioPage() {
         </div>
       </section>
 
+      {Array.isArray(d.barriers) ? (
+        <section className="panel mt">
+          <H2 info="portfolio.barriers">{t.company.barriers}</H2>
+          <p className="section-sub">{t.portfolio.barriersSub}</p>
+          <BarrierPie list={d.barriers} />
+        </section>
+      ) : null}
+
       <section className="panel mt">
         <div className="panel-head">
           <div>
-            <H2 info="portfolio.actions">Open actions</H2>
-            <p className="section-sub">Across all companies, soonest first.</p>
+            <H2 info="portfolio.actions">{t.portfolio.openActions}</H2>
+            <p className="section-sub">{t.portfolio.actionsSub}</p>
           </div>
-          <button type="button" className="btn-ghost" onClick={exportActions} disabled={!d.actions.length}>Download CSV</button>
+          <button type="button" className="btn-ghost" onClick={exportActions} disabled={!d.actions.length}>{t.portfolio.downloadCsv}</button>
         </div>
         <ActionsList list={d.actions} showCompany />
       </section>
-      <p className="footer-note">Survey answers, not verified STC transactions.</p>
+      <p className="footer-note">{t.common.surveyNotVerified}</p>
 
       {open ? (
-        <Drawer label={`${open.name} full results`} onClose={() => setOpenId(null)}>
+        <Drawer label={t.portfolio.fullResults(open.name)} onClose={() => setOpenId(null)}>
           <DrawerBody company={open} onClose={() => setOpenId(null)} />
         </Drawer>
       ) : null}

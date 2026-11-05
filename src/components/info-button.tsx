@@ -2,19 +2,21 @@
 
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { METRICS, type Metric, type MetricId } from "@/lib/metric-info";
+import type { Metric, MetricId } from "@/lib/metric-info";
+import { useLang } from "@/lib/lang-context";
 
 const PHONE_QUERY = "(max-width: 640px)";
 
 // The three short parts of an entry. Entries with a single paragraph show just the paragraph.
 export function MetricBody({ m, headingLevel = 4 }: { m: Metric; headingLevel?: 3 | 4 }) {
+  const { t } = useLang();
   const H = `h${headingLevel}` as "h3" | "h4";
   return (
     <>
       {m.text ? <p>{m.text}</p> : null}
-      {m.what ? <div className="info-part"><H>What it shows</H><p>{m.what}</p></div> : null}
-      {m.how ? <div className="info-part"><H>How it’s calculated</H><p>{m.how}</p></div> : null}
-      {m.hidden ? <div className="info-part"><H>When it’s hidden</H><p>{m.hidden}</p></div> : null}
+      {m.what ? <div className="info-part"><H>{t.glossary.whatItShows}</H><p>{m.what}</p></div> : null}
+      {m.how ? <div className="info-part"><H>{t.glossary.howCalculated}</H><p>{m.how}</p></div> : null}
+      {m.hidden ? <div className="info-part"><H>{t.glossary.whenHidden}</H><p>{m.hidden}</p></div> : null}
     </>
   );
 }
@@ -23,7 +25,8 @@ export function MetricBody({ m, headingLevel = 4 }: { m: Metric; headingLevel?: 
 // document.body so it can't shift the layout. Esc, outside click or the close button close it and
 // focus goes back to the button.
 export function InfoButton({ id }: { id: MetricId }) {
-  const m: Metric = METRICS[id];
+  const { t } = useLang();
+  const m: Metric = t.metrics[id];
   const uid = useId();
   const btnRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -98,7 +101,7 @@ export function InfoButton({ id }: { id: MetricId }) {
         ref={btnRef}
         type="button"
         className="info-btn"
-        aria-label={`About ${m.title}`}
+        aria-label={t.glossary.about(m.title)}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-controls={open ? uid : undefined}
@@ -122,7 +125,7 @@ export function InfoButton({ id }: { id: MetricId }) {
                 className={`info-pop ${sheet ? "info-sheet" : ""}`}
                 style={sheet ? undefined : { left: pos?.left ?? 0, top: pos?.top ?? 0, visibility: pos ? "visible" : "hidden" }}
               >
-                <button ref={closeRef} type="button" className="info-close" onClick={() => close(true)} aria-label={`Close: ${m.title}`}>
+                <button ref={closeRef} type="button" className="info-close" onClick={() => close(true)} aria-label={t.glossary.close(m.title)}>
                   <svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
                     <path d="M2 2l10 10M12 2L2 12" />
                   </svg>

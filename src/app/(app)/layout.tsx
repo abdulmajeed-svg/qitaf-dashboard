@@ -8,13 +8,13 @@ import { NAV, homeFor } from "@/lib/format";
 import type { Profile } from "@/lib/types";
 
 import { ProfileContext } from "@/lib/profile-context";
+import { useLang } from "@/lib/lang-context";
 import { ToastProvider } from "@/lib/toast";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GlossaryButton } from "@/components/glossary";
 
-const ROLE_LABEL = { ADMIN: "Asalah admin", STC: "STC", COMPANY_HR: "Company HR" } as const;
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const { t, lang, setLang } = useLang();
   const router = useRouter();
   const pathname = usePathname();
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -39,7 +39,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }
         setProfile(p);
       } catch (e) {
-        if (!cancelled) setLoadError(e instanceof Error ? e.message : "Could not load your account");
+        if (!cancelled) setLoadError(e instanceof Error ? e.message : "");
       }
     })();
     return () => { cancelled = true; };
@@ -56,20 +56,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     router.replace("/login");
   }
 
-  if (loadError) {
+  if (loadError !== null) {
     return (
       <main className="login">
         <div className="login-card">
-          <h1>Could not load your account</h1>
-          <p className="muted" role="alert">{loadError}</p>
-          <button type="button" className="btn" onClick={() => location.reload()}>Try again</button>
+          <h1>{t.header.couldNotLoadAccount}</h1>
+          {loadError ? <p className="muted" role="alert">{loadError}</p> : null}
+          <button type="button" className="btn" onClick={() => location.reload()}>{t.common.tryAgain}</button>
         </div>
       </main>
     );
   }
-  if (!profile || !allowed) return <main className="login"><p className="muted" role="status">Loading…</p></main>;
+  if (!profile || !allowed) return <main className="login"><p className="muted" role="status">{t.common.loading}</p></main>;
 
-  const roleText = profile.role === "COMPANY_HR" ? profile.company_name || ROLE_LABEL.COMPANY_HR : ROLE_LABEL[profile.role];
+  const roleText = profile.role === "COMPANY_HR" ? profile.company_name || t.roles.COMPANY_HR : t.roles[profile.role];
 
   return (
     <ProfileContext.Provider value={profile}>
@@ -79,24 +79,32 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="brand">
             <span className="brand-logo">
               {/* Logo files are used exactly as supplied: never recoloured, stretched or boxed. 50px high minimum. */}
-              <img className="logo-dark" src="/brand/qitaf-logo-main-white.svg" alt="qitaf from stc" width={81} height={50} />
-              <img className="logo-light" src="/brand/qitaf-logo-main-purple.svg" alt="qitaf from stc" width={81} height={50} />
+              <img className="logo-dark" src="/brand/qitaf-logo-main-white.svg" alt={t.header.logoAlt} width={81} height={50} />
+              <img className="logo-light" src="/brand/qitaf-logo-main-purple.svg" alt={t.header.logoAlt} width={81} height={50} />
             </span>
             <span className="brand-divider" aria-hidden="true" />
             <div>
-              <div className="brand-name">Insights</div>
+              <div className="brand-name">{t.header.insights}</div>
               <div className="small muted">{roleText}</div>
             </div>
-          </div>          <nav className="nav" aria-label="Sections">
+          </div>          <nav className="nav" aria-label={t.header.sections}>
             {NAV[profile.role].map((n) => (
-              <Link key={n.href} href={n.href} aria-current={pathname === n.href ? "page" : undefined}>{n.label}</Link>
+              <Link key={n.href} href={n.href} aria-current={pathname === n.href ? "page" : undefined}>{t.nav[n.label]}</Link>
             ))}
           </nav>
           <div className="who">
             <GlossaryButton role={profile.role} />
+            <button type="button" className="btn-ghost lang-btn" onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+              aria-label={t.header.switchLanguage} title={t.header.switchLanguage}>
+              {/* Globe */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+              </svg>
+            </button>
             <ThemeToggle />
-            <span className="small muted">{profile.email}</span>
-            <button type="button" className="btn-ghost" onClick={signOut}>Sign out</button>
+            <span className="small muted" dir="ltr">{profile.email}</span>
+            <button type="button" className="btn-ghost" onClick={signOut}>{t.header.signOut}</button>
           </div>
         </header>
         <main>{children}</main>

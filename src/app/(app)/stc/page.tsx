@@ -3,19 +3,21 @@
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
 import { fmtTime } from "@/lib/format";
+import { useLang } from "@/lib/lang-context";
 import type { StcOverview } from "@/lib/types";
 import { InfoButton } from "@/components/info-button";
 import {
-  ActionsList, AnimatedNumber, Blocks, ErrorCard, FlashPanel, FunnelChart, H2, Kpi, PageHead, PageSkeleton, Ring, ScoreDots, StateCard,
+  ActionsList, AnimatedNumber, BarrierPie, Blocks, ErrorCard, FlashPanel, FunnelChart, H2, Kpi, PageHead, PageSkeleton, Ring, ScoreDots, StateCard,
 } from "@/components/visuals";
 
 export default function StcPage() {
+  const { t } = useLang();
   const { data: d, error, updated, reload } = useRpcData<StcOverview>(() => rpc("get_stc_overview"), "stc");
   if (error) return <ErrorCard message={error} onRetry={reload} />;
   if (!d) return <PageSkeleton />;
 
   const head = (
-    <PageHead title="Program overview" info="stc.about" sub="Combined results across participating companies. Pilot data is excluded."
+    <PageHead title={t.stc.title} info="stc.about" sub={t.stc.sub}
       updated={updated} onRefresh={reload} fmt={fmtTime} />
   );
 
@@ -23,8 +25,8 @@ export default function StcPage() {
     return (
       <>
         {head}
-        <StateCard title="Combined results are hidden">
-          <p className="muted">{d.reason}. {d.participating} companies are taking part with {d.responses} valid responses so far.</p>
+        <StateCard title={t.stc.hiddenTitle}>
+          <p className="muted">{t.stc.hiddenText(d.reason, d.participating, d.responses)}</p>
         </StateCard>
       </>
     );
@@ -40,42 +42,47 @@ export default function StcPage() {
         <FlashPanel className="grow-2 hero" watch={d.csat}>
           <Ring pct={d.csat} />
           <div>
-            <div className="kpi-label">Employees satisfied<InfoButton id="company.satisfied" /></div>
-            <div style={{ marginTop: 8 }}>Across {d.csat_n} employees in {d.reportable_companies} companies</div>
+            <div className="kpi-label">{t.company.satisfied}<InfoButton id="company.satisfied" /></div>
+            <div style={{ marginTop: 8 }}>{t.stc.satisfiedAcross(d.csat_n, d.reportable_companies)}</div>
           </div>
         </FlashPanel>
-        <Kpi label="Participating companies" info="stc.about" value={<AnimatedNumber value={d.participating} />} watch={d.participating}
-          note={`${d.reportable_companies} companies with results available`} />
-        <Kpi label="Response rate" info="stc.rate" value={d.response_rate !== null ? <AnimatedNumber value={d.response_rate} suffix="%" /> : "—"}
-          watch={d.response_rate} note="Companies with a confirmed invited count">
+        <Kpi label={t.stc.participating} info="stc.about" value={<AnimatedNumber value={d.participating} />} watch={d.participating}
+          note={t.stc.participatingNote(d.reportable_companies)} />
+        <Kpi label={t.company.responseRate} info="stc.rate" value={d.response_rate !== null ? <AnimatedNumber value={d.response_rate} suffix="%" /> : "—"}
+          watch={d.response_rate} note={t.stc.rateNote}>
           {d.response_rate !== null ? <Blocks pct={d.response_rate} /> : null}
         </Kpi>
-        <Kpi label="Redeemed successfully" info="company.redeemed" value={redeemed !== null ? <AnimatedNumber value={redeemed} suffix="%" /> : "—"}
-          watch={redeemed} note={`${f.succeeded} of ${f.received} who received points`} />
+        <Kpi label={t.company.redeemed} info="company.redeemed" value={redeemed !== null ? <AnimatedNumber value={redeemed} suffix="%" /> : "—"}
+          watch={redeemed} note={t.company.redeemedNote(f.succeeded, f.received)} />
       </section>
 
       <section className="grid-row mt">
         <div className="panel grow-3">
-          <H2 info="company.scores">Experience scores</H2>
-          <p className="section-sub">Average from 1 (lowest) to 5 (highest).</p>
+          <H2 info="company.scores">{t.company.scores}</H2>
+          <p className="section-sub">{t.stc.scoresSub}</p>
           <ScoreDots items={d.items} />
         </div>
         <div className="panel grow-2">
-          <H2 info="company.journey">Redemption journey</H2>
-          <p className="section-sub">Self-reported, not verified STC transactions.</p>
+          <H2 info="company.journey">{t.company.journey}</H2>
+          <p className="section-sub">{t.stc.journeySub}</p>
           <FunnelChart f={f} />
         </div>
       </section>
 
+      {Array.isArray(d.barriers) ? (
+        <section className="panel mt">
+          <H2 info="stc.barriers">{t.company.barriers}</H2>
+          <p className="section-sub">{t.stc.barriersSub}</p>
+          <BarrierPie list={d.barriers} />
+        </section>
+      ) : null}
+
       <section className="panel mt">
-        <H2 info="company.actions">Joint actions with STC</H2>
-        <p className="section-sub">Agreed follow-up between Asalah and STC.</p>
+        <H2 info="company.actions">{t.stc.jointActions}</H2>
+        <p className="section-sub">{t.stc.jointActionsSub}</p>
         <ActionsList list={d.actions} />
       </section>
-      <p className="footer-note">
-        Survey answers, not verified STC transactions. Combined results appear only when at least 3 companies each have
-        the minimum number of valid responses for their survey round. No company names are shown.
-      </p>
+      <p className="footer-note">{t.stc.footer}</p>
     </>
   );
 }
