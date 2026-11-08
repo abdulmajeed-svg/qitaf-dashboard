@@ -7,8 +7,13 @@ import { fmtTime } from "@/lib/format";
 import type { CompanyDashboard, CompanyRef } from "@/lib/types";
 import { ErrorCard, PageHead, PageSkeleton } from "@/components/visuals";
 import { CompanyView } from "@/components/company-view";
+import { CompanySearch } from "@/components/company-search";
+import { CompanyPurchases } from "@/components/purchases";
 import { useProfile } from "@/lib/profile-context";
 import { useLang } from "@/lib/lang-context";
+
+const TABS = ["survey", "tracking"] as const;
+type Tab = (typeof TABS)[number];
 
 export default function CompanyPage() {
   const { t } = useLang();
@@ -17,6 +22,7 @@ export default function CompanyPage() {
   const [companies, setCompanies] = useState<CompanyRef[]>([]);
   const [company, setCompany] = useState<string | null>(null);
   const [listError, setListError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("survey"); // kept when the company changes
 
   // Admin and STC: load the company list and default to the first company. Company HR never sees a picker.
   useEffect(() => {
@@ -41,10 +47,27 @@ export default function CompanyPage() {
   const picker = canPick ? (
     <>
       <label className="small muted" htmlFor="company-picker">{t.company.picker}</label>
-      <select id="company-picker" value={company ?? ""} onChange={(e) => setCompany(e.target.value)}>
-        {companies.map((c) => <option key={c.company_id} value={c.company_id}>{c.name}</option>)}
-      </select>
+      <CompanySearch id="company-picker" companies={companies}
+        value={companies.find((c) => c.company_id === company) ?? null} onChange={(c) => setCompany(c.company_id)} />
     </>
+  ) : null;
+
+  // Admin and STC: Survey results / Tracking tabs under the company name. Two tabs, so either arrow key switches.
+  const tabs = canPick ? (
+    <div className="tabs" role="tablist" aria-label={t.nav.companyResults}>
+      {TABS.map((id) => (
+        <button key={id} type="button" role="tab" id={`tab-${id}`} aria-selected={tab === id} aria-controls="company-tabpanel"
+          tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)}
+          onKeyDown={(e) => {
+            if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+            const next = id === "survey" ? "tracking" : "survey";
+            setTab(next);
+            document.getElementById(`tab-${next}`)?.focus();
+          }}>
+          {id === "survey" ? t.nav.surveyResults : t.nav.tracking}
+        </button>
+      ))}
+    </div>
   ) : null;
 
   if (error) return <ErrorCard message={error} onRetry={reload} />;
@@ -54,12 +77,17 @@ export default function CompanyPage() {
     <>
       <PageHead
         title={d.company.name}
+        sub={tabs}
         extra={picker}
         updated={updated}
         onRefresh={reload}
         fmt={fmtTime}
       />
-      <CompanyView d={d} />
+      {canPick ? (
+        <div role="tabpanel" id="company-tabpanel" aria-labelledby={`tab-${tab}`}>
+          {tab === "tracking" ? <CompanyPurchases companyId={d.company.company_id} /> : <CompanyView d={d} />}
+        </div>
+      ) : <CompanyView d={d} />}
     </>
   );
 }

@@ -2,13 +2,11 @@
 
 import { minResponses } from "@/lib/format";
 import { useLang } from "@/lib/lang-context";
-import { useProfile } from "@/lib/profile-context";
 import type { CompanyDashboard } from "@/lib/types";
 import {
-  AnimatedNumber, BarrierPie, Blocks, FlashPanel, FunnelChart, H2, Kpi, OrgChip, Ring, ScoreDots, StateCard,
+  AnimatedNumber, BarrierPie, Blocks, FlashPanel, FunnelChart, H2, Kpi, Ring, ScoreDots, StateCard,
 } from "./visuals";
 import { InfoButton } from "./info-button";
-import { HrItChart } from "./hrit-chart";
 
 type Motivation = NonNullable<CompanyDashboard["motivation"]>;
 
@@ -40,7 +38,6 @@ function MotivationCard({ m }: { m: Motivation }) {
 
 export function CompanyView({ d }: { d: CompanyDashboard }) {
   const { t } = useLang();
-  const isAdmin = useProfile().role === "ADMIN"; // the HR assessment is admin-only
   const k = d.kpi;
   const min = minResponses(d.min_responses); // threshold for this survey round, from the database
   const f = d.funnel;
@@ -127,18 +124,6 @@ export function CompanyView({ d }: { d: CompanyDashboard }) {
           </section>
         </>
       )}
-
-      {isAdmin ? (
-        <section className="panel mt">
-          <div className="page-head" style={{ marginBottom: 14 }}>
-            <H2 info="company.org">{t.company.hrAssessment}</H2>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <span className="small muted">{t.company.hr}</span><OrgChip status={d.org.hr_status} />
-            </div>
-          </div>
-          <HrItChart org={d.org} />
-        </section>
-      ) : null}
 
       <p className="footer-note">{t.company.footer(min)}</p>
     </>

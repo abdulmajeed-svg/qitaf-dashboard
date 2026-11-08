@@ -13,8 +13,7 @@ export function GlossaryButton({ role }: { role: Role }) {
   const [open, setOpen] = useState(false);
   const first = ROLE_FIRST[role];
   const sections = [...first, ...SECTION_ORDER.filter((s) => !first.includes(s))];
-  // The HR assessment is admin-only, so only admins get its explanation.
-  const ids = (Object.keys(METRIC_SECTION) as MetricId[]).filter((id) => role === "ADMIN" || id !== "company.org");
+  const ids = Object.keys(METRIC_SECTION) as MetricId[];
 
   return (
     <>

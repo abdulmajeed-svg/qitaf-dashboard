@@ -100,7 +100,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <span lang={lang === "ar" ? "en" : "ar"}>{t.header.otherLanguage}</span>
             </button>
             <ThemeToggle />
-            <span className="small muted" dir="ltr">{profile.email}</span>
             <button type="button" className="btn-ghost" onClick={signOut}>{t.header.signOut}</button>
           </div>
         </header>

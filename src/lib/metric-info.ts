@@ -33,7 +33,6 @@ export const METRIC_SECTION: Record<MetricId, Section> = {
   "company.journey": "Company results",
   "company.barriers": "Company results",
   "company.motivation": "Company results",
-  "company.org": "Company results",
   "company.actions": "Company results",
   "stc.about": "STC view",
   "stc.rate": "STC view",

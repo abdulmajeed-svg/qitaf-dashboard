@@ -166,37 +166,20 @@ html { scrollbar-gutter: stable; }
 .funnel .bar { box-shadow: 0 0 0 1px var(--bar-ring); }
 td.cell { box-shadow: inset 0 0 0 1px var(--bar-ring); }
 
-/* ---------- HR and IT assessment chart ---------- */
-.hrit { display: grid; gap: 24px; }
-.hrit-title { font-size: 14px; font-weight: 600; margin: 0 0 10px; }
-.hrit-chart { position: relative; }
-.hrit-row { display: grid; grid-template-columns: minmax(140px, 240px) 1fr 56px; align-items: center; gap: 12px; padding: 7px 0; }
-.hrit-label { font-size: 13.5px; }
-.hrit-track { position: relative; height: 16px; }
-.hrit-grid { position: absolute; top: -8px; bottom: -8px; width: 1px; background: var(--line); }
-.hrit-bar { position: absolute; inset-inline-start: 0; top: 2px; height: 12px; border-radius: 0; border-start-end-radius: 6px; border-end-end-radius: 6px; box-shadow: 0 0 0 1px var(--bar-ring);
-  transition: width .8s cubic-bezier(.2, .7, .2, 1); }
-.hrit-val { text-align: end; font-weight: 500; font-size: 13.5px; white-space: nowrap; }
-.hrit-axis { display: grid; grid-template-columns: minmax(140px, 240px) 1fr 56px; gap: 12px; margin-top: 4px; }
-.hrit-ticks { position: relative; height: 18px; }
-.hrit-tick { position: absolute; transform: translateX(-50%); font-size: 11.5px; color: var(--muted); }
-.hrit-tick:last-child { transform: translateX(-100%); }
-.hrit-tick:first-child { transform: none; }
-[dir="rtl"] .hrit-tick { transform: translateX(50%); }
-[dir="rtl"] .hrit-tick:last-child { transform: translateX(100%); }
-[dir="rtl"] .hrit-tick:first-child { transform: none; }
-.hrit-empty { padding: 16px; border: 1px dashed var(--line); border-radius: var(--radius-sm); color: var(--muted); font-size: 13px; }
-.pills-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-.pills-title { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
-.pills { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: var(--soft); }
-@media (max-width: 640px) {
-  .hrit-row { grid-template-columns: 1fr 56px; row-gap: 6px; }
-  .hrit-label { grid-column: 1 / -1; }
-  .hrit-axis { grid-template-columns: 1fr 56px; }
-  .hrit-axis > span:first-child { display: none; }
-  .pills-cols { grid-template-columns: 1fr; }
-}
+/* ---------- Searchable company field ---------- */
+.combo { position: relative; min-width: 220px; }
+.combo input { width: 100%; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); border-radius: var(--radius-sm); padding: 12px 14px; min-height: 44px; font: inherit; }
+.combo-list { position: absolute; top: calc(100% + 4px); inset-inline: 0; z-index: 50; max-height: 260px; overflow-y: auto; margin: 0; padding: 4px;
+  list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-sm); box-shadow: 0 12px 40px rgba(0, 0, 0, .35); font-size: 14px; }
+.combo-list li { padding: 9px 12px; border-radius: 8px; cursor: pointer; color: var(--text); }
+.combo-list li[aria-selected="true"] { background: var(--panel-2); color: var(--accent-text); }
+.combo-empty { padding: 10px 12px; color: var(--muted); }
+
+/* ---------- Tabs (Company results) ---------- */
+.tabs { display: inline-flex; gap: 4px; padding: 4px; margin-top: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.tabs [role="tab"] { background: transparent; border: 0; border-radius: 8px; padding: 0 16px; min-height: 36px; cursor: pointer;
+  color: var(--soft); font-size: 13.5px; font-weight: 600; }
+.tabs [role="tab"][aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
 /* Tooltip host that sits inline (for example around a chip) */
 .tip-host.tip-inline { display: inline-block; }
 

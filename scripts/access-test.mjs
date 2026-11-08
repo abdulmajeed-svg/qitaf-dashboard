@@ -83,8 +83,9 @@ let adminPurchaseCount = null;
     } else {
       console.log(`SKIP  [${G}] add_points_purchase (writes a real purchase; set QA_ALLOW_WRITES=1 in .env.test.local to run it)`);
     }
-    const tracking = await sb.rpc("get_points_tracking", { p_company: null });
-    check(G, "get_points_tracking(all companies) works", !tracking.error && Array.isArray(tracking.data?.purchases), brief(tracking));
+    const tracking = await sb.rpc("get_points_tracking", { p_company: "TEST-012" });
+    check(G, "get_points_tracking('TEST-012') returns only TEST-012 purchases",
+      !tracking.error && Array.isArray(tracking.data?.purchases) && tracking.data.purchases.every((p) => p.company_id === "TEST-012"), brief(tracking));
     if (Array.isArray(tracking.data?.purchases)) adminPurchaseCount = tracking.data.purchases.length;
   }
 }
@@ -124,9 +125,12 @@ let adminPurchaseCount = null;
     check(G, "list_companies works", !list.error && Array.isArray(list.data), brief(list));
     const dash = await sb.rpc("get_company_dashboard", { p_company: "TEST-012" });
     check(G, "get_company_dashboard('TEST-012') works", !dash.error && dash.data?.company?.company_id === "TEST-012", brief(dash));
-    const tracking = await sb.rpc("get_points_tracking", { p_company: null });
-    check(G, "get_points_tracking(all companies) works, same purchases as ADMIN",
-      !tracking.error && Array.isArray(tracking.data?.purchases) && (adminPurchaseCount === null || tracking.data.purchases.length === adminPurchaseCount),
+    // STC has no Tracking page (the dashboard leaves it out of STC's menu), but reads a company's purchases
+    // in the Tracking tab of Company results.
+    const tracking = await sb.rpc("get_points_tracking", { p_company: "TEST-012" });
+    check(G, "get_points_tracking('TEST-012') works, only TEST-012, same purchases as ADMIN",
+      !tracking.error && Array.isArray(tracking.data?.purchases) && tracking.data.purchases.every((p) => p.company_id === "TEST-012")
+        && (adminPurchaseCount === null || tracking.data.purchases.length === adminPurchaseCount),
       tracking.error ? brief(tracking) : `got ${tracking.data?.purchases?.length}, ADMIN got ${adminPurchaseCount}`);
     await rpcErrors(G, sb, [["get_portfolio"], ["get_review_queue"], ["add_points_purchase", PURCHASE]]);
     await tablesBlocked(G, sb);

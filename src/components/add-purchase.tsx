@@ -5,16 +5,22 @@ import { rpc } from "@/lib/supabase";
 import { useLang } from "@/lib/lang-context";
 import { useToast } from "@/lib/toast";
 import type { CompanyRef } from "@/lib/types";
+import { CompanySearch } from "./company-search";
 
 const NOTE_MAX = 200;
 
 // Admin only: records points a company bought. Checked here first so people get a clear message;
 // the database checks again (add_points_purchase is Admin only there too).
-export function AddPurchase({ companies, onAdded }: { companies: CompanyRef[]; onAdded: () => void }) {
+// The chosen company belongs to the page, which shows that company's purchases under the form.
+export function AddPurchase({ companies, company, onCompanyChange, onAdded }: {
+  companies: CompanyRef[];
+  company: CompanyRef | null;
+  onCompanyChange: (c: CompanyRef) => void;
+  onAdded: () => Promise<void> | void;
+}) {
   const { t } = useLang();
   const toast = useToast();
   const today = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD, so "today" is never counted as the future
-  const [company, setCompany] = useState("");
   const [points, setPoints] = useState("");
   const [date, setDate] = useState(today);
   const [note, setNote] = useState("");
@@ -34,14 +40,14 @@ export function AddPurchase({ companies, onAdded }: { companies: CompanyRef[]; o
     e.preventDefault();
     const p = problem();
     setError(p);
-    if (p) return;
+    if (p || !company) return;
     setBusy(true);
     try {
-      await rpc("add_points_purchase", { p_company: company, p_points: Number(points.trim()), p_date: date, p_note: note.trim() || null });
+      await rpc("add_points_purchase", { p_company: company.company_id, p_points: Number(points.trim()), p_date: date, p_note: note.trim() || null });
       setPoints("");
       setNote("");
+      await onAdded(); // refresh first, so the "added" message is the one left showing
       toast(t.tracking.saved);
-      onAdded();
     } catch (err) {
       setError(t.tracking.saveFailed(err instanceof Error ? err.message : t.common.somethingWrong));
     } finally {
@@ -50,17 +56,14 @@ export function AddPurchase({ companies, onAdded }: { companies: CompanyRef[]; o
   }
 
   return (
-    <section className="panel mt">
+    <section className="panel">
       <h2>{t.tracking.addTitle}</h2>
       <p className="section-sub">{t.tracking.addSub}</p>
       <form onSubmit={onSubmit} noValidate>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end" }}>
-          <div className="field" style={{ flex: "2 1 200px", marginTop: 0 }}>
+          <div className="field" style={{ flex: "2 1 220px", marginTop: 0 }}>
             <label htmlFor="purchase-company">{t.tracking.fieldCompany}</label>
-            <select id="purchase-company" value={company} onChange={(e) => setCompany(e.target.value)} required>
-              <option value="">{t.tracking.chooseCompany}</option>
-              {companies.map((c) => <option key={c.company_id} value={c.company_id}>{c.name}</option>)}
-            </select>
+            <CompanySearch id="purchase-company" companies={companies} value={company} onChange={onCompanyChange} />
           </div>
           <div className="field" style={{ flex: "1 1 120px", marginTop: 0 }}>
             <label htmlFor="purchase-points">{t.tracking.fieldPoints}</label>

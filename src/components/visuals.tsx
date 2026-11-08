@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import type { ActionRow, Funnel, Item, OrgStatus, ReportStatus } from "@/lib/types";
+import type { ActionRow, Funnel, Item, ReportStatus } from "@/lib/types";
 import { barrierText, fmtDate, isOverdue, scoreColor } from "@/lib/format";
 import { useLang } from "@/lib/lang-context";
 import { useAnimatedNumber, useEntered } from "@/lib/motion";
@@ -188,13 +188,6 @@ export function ReportChip({ status, n, min }: { status: ReportStatus; n: number
   );
 }
 
-export function OrgChip({ status }: { status: OrgStatus }) {
-  const { t } = useLang();
-  if (status === "SUBMITTED") return <span className="chip chip-ok">{t.status.submitted}</span>;
-  if (status === "NOT_SUBMITTED") return <span className="chip chip-wait">{t.status.notSubmitted}</span>;
-  return <span className="chip chip-off">{t.status.notApplicable}</span>;
-}
-
 // English status for the CSV export.
 export const actionStatusText = (a: ActionRow) => (isOverdue(a) ? "Overdue" : a.status);
 
@@ -275,9 +268,10 @@ export function ErrorCard({ message, onRetry }: { message: string; onRetry: () =
   );
 }
 
+// Without onRefresh there is no Refresh button.
 export function PageHead({ title, info, sub, extra, onRefresh }: {
-  title: ReactNode; info?: MetricId; sub?: ReactNode; extra?: ReactNode; updated: Date | null; onRefresh: () => void;
-  fmt: (d: Date) => string;
+  title: ReactNode; info?: MetricId; sub?: ReactNode; extra?: ReactNode; updated?: Date | null; onRefresh?: () => void;
+  fmt?: (d: Date) => string;
 }) {
   const { t } = useLang();
   return (
@@ -288,7 +282,7 @@ export function PageHead({ title, info, sub, extra, onRefresh }: {
       </div>
       <div className="refresh">
         {extra}
-        <button type="button" className="btn-ghost" onClick={onRefresh}>{t.common.refresh}</button>
+        {onRefresh ? <button type="button" className="btn-ghost" onClick={onRefresh}>{t.common.refresh}</button> : null}
       </div>
     </div>
   );

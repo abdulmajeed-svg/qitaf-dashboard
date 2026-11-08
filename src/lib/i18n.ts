@@ -114,9 +114,6 @@ const en = {
         : "No responses yet",
     reportChipTip: (min: number) =>
       `Results are shown only when at least ${min} valid responses are received, to protect employee confidentiality.`,
-    submitted: "Submitted",
-    notSubmitted: "Not submitted",
-    notApplicable: "Not applicable",
   },
   actions: {
     overdue: "Overdue",
@@ -163,20 +160,8 @@ const en = {
     noChange: "No change",
     decreased: "Decreased",
     motivationNote: (n: number) => `Based on ${n} employees who answered. “Prefer not to answer” is left out of the percentages.`,
-    hrAssessment: "HR assessment",
-    hr: "HR",
     footer: (min: number) =>
       `Survey answers, not verified STC transactions. Employee results appear only with ${min} or more valid responses per question. Trends appear after the second survey wave.`,
-  },
-  hr: {
-    chartAria: (title: string) => `${title}, scores from 1 to 5`,
-    barTip: (title: string, label: string, score: number) => `${title}, ${label}: ${score} out of 5`,
-    notSubmitted: "HR has not submitted this assessment yet.",
-    notApplicable: "The HR assessment does not apply to this company.",
-    noScores: "No scored HR answers yet.",
-    note: "Answers from one authorised HR respondent.",
-    answersAria: (group: string) => `${group} answers`,
-    noOtherAnswers: "No other answers.",
   },
   portfolio: {
     title: "Portfolio",
@@ -241,17 +226,17 @@ const en = {
     title: "Tracking",
     sub: "When companies bought points.",
     total: "Total points bought",
-    allCompanies: "All companies",
     listFailed: (msg: string) => `Could not load the company list: ${msg}`,
     purchases: "Purchases",
     colDate: "Date",
-    colCompany: "Company",
     colPoints: "Points",
     empty: "No point purchases recorded yet.",
+    emptyCompany: "No point purchases recorded yet for this company.",
+    hint: "Search for a company to see its purchases.",
+    search: "Search for a company",
     addTitle: "Add purchase",
     addSub: "Record points a company bought.",
     fieldCompany: "Company",
-    chooseCompany: "Choose a company",
     fieldPoints: "Points",
     fieldDate: "Purchase date",
     fieldNote: "Note (optional)",
@@ -279,30 +264,18 @@ const en = {
   // Item labels come from the database in English; only Arabic replaces them by question code.
   itemLabels: codeMap({}),
   itemShort: codeMap({ A07: "Appreciated", A09: "Reward exp.", A06: "Usefulness", A05: "Merchants", A03: "Ease", A01: "Clarity" }),
-  orgLabels: codeMap({}),
   barriers: codeMap({
     SAVE: "Saving points for later", HOW: "Do not know how to redeem", BALANCE: "Balance is insufficient",
     MERCHANT: "Merchants or options do not suit me", TERMS: "Unsure about the conditions or validity",
     TECH: "Technical or access problem", TIME: "Have not had time", OTHER: "Other",
     NOT_RECEIVED: "Did not receive points", // from question A02, added to the barriers by the database
   }),
-  codes: codeMap({
-    SOME_LESS: "Somewhat less time", MUCH_LESS: "Much less time", NO_CHANGE: "No change",
-    SOME_MORE: "Somewhat more time", MUCH_MORE: "Much more time", NOT_APPLICABLE: "Not applicable",
-    ONBOARDING: "Onboarding", ALLOCATION: "Points allocation", REDEMPTION: "Redemption issues",
-    REPORT: "Reporting", INVOICING: "Invoicing", SUPPORT: "Support", OTHER: "Other", NONE: "None",
-    EXPANDING: "Already expanding", PLANNED: "Expansion planned", POSSIBLE: "Possible, not planned",
-    DONT_KNOW: "Does not know", FILE: "File-based process", PAYROLL: "Payroll system",
-    NO_SUPPORT: "No support needed", NOT_DECIDER: "Not involved in decision",
-    TOO_EARLY: "Too early to say", NO_REPORTS: "No reports available",
-    DUP: "Duplicate allocations", MISMATCH: "Records do not match",
-  }),
   audience: codeMap({ A: "Employee", B: "HR", C: "Finance", D: "IT" }),
   metrics: {
     /* ---------- Tracking ---------- */
     "tracking.total": {
       title: "Total points bought",
-      text: "Points that companies have bought, added up from the purchases listed on this page. Company HR see their own company; Asalah and STC see all companies or the one they select. Only Asalah can record a purchase.",
+      text: "Points a company has bought, added up from the purchases listed below. Company HR see their own company; Asalah and STC see the company they choose. Only Asalah can record a purchase.",
     },
 
     /* ---------- Portfolio ---------- */
@@ -405,10 +378,6 @@ const en = {
     "company.motivation": {
       title: "Effect on motivation",
       text: "How employees said the rewards changed their motivation. Increased = slightly or significantly more motivated; Decreased = slightly or significantly less. “Prefer not to answer” is left out of the percentages. Shown only when at least the minimum number of employees answered.",
-    },
-    "company.org": {
-      title: "HR assessment",
-      text: "Answers from one authorised HR person at the company. Submitted / Not submitted. Scores run from 1 (lowest) to 5 (highest).",
     },
     "company.actions": {
       title: "Actions",
@@ -543,9 +512,6 @@ const ar: Dict = {
         : "لا توجد استجابات بعد",
     reportChipTip: (min) =>
       `لا تُعرض النتائج إلا عندما يبلغ عدد الاستجابات الصالحة ${min} على الأقل، حفاظًا على سرية بيانات الموظفين.`,
-    submitted: "تم الإرسال",
-    notSubmitted: "لم يُرسل",
-    notApplicable: "لا ينطبق",
   },
   actions: {
     overdue: "متأخر",
@@ -592,20 +558,8 @@ const ar: Dict = {
     noChange: "لم تتغير",
     decreased: "انخفضت",
     motivationNote: (n) => `استنادًا إلى إجابات ${n} من الموظفين. لا تشمل النسب خيار «أفضّل عدم الإجابة».`,
-    hrAssessment: "تقييم الموارد البشرية",
-    hr: "الموارد البشرية",
     footer: (min) =>
       `إجابات استبيان، وليست معاملات STC موثّقة. لا تظهر نتائج الموظفين إلا عندما يبلغ عدد الاستجابات الصالحة ${min} أو أكثر لكل سؤال. تظهر الاتجاهات بعد الجولة الثانية من الاستبيان.`,
-  },
-  hr: {
-    chartAria: (title) => `${title}، الدرجات من 1 إلى 5`,
-    barTip: (title, label, score) => `${title}، ${label}: ${arScore(score)}`,
-    notSubmitted: "لم تُرسل الموارد البشرية هذا التقييم بعد.",
-    notApplicable: "تقييم الموارد البشرية لا ينطبق على هذه الشركة.",
-    noScores: "لا توجد إجابات مُقيَّمة من الموارد البشرية بعد.",
-    note: "إجابات من ممثل واحد معتمد من الموارد البشرية.",
-    answersAria: (group) => `إجابات ${group}`,
-    noOtherAnswers: "لا توجد إجابات أخرى.",
   },
   portfolio: {
     title: "محفظة الشركات",
@@ -670,17 +624,17 @@ const ar: Dict = {
     title: "التتبع",
     sub: "متى اشترت الشركات النقاط.",
     total: "إجمالي النقاط المشتراة",
-    allCompanies: "جميع الشركات",
     listFailed: (msg) => `تعذّر تحميل قائمة الشركات: ${msg}`,
     purchases: "عمليات الشراء",
     colDate: "التاريخ",
-    colCompany: "الشركة",
     colPoints: "النقاط",
     empty: "لم تُسجَّل أي عمليات شراء للنقاط بعد.",
+    emptyCompany: "لم تُسجَّل أي عمليات شراء للنقاط لهذه الشركة بعد.",
+    hint: "ابحث عن شركة لعرض عمليات الشراء الخاصة بها.",
+    search: "ابحث عن شركة",
     addTitle: "إضافة عملية شراء",
     addSub: "سجّل النقاط التي اشترتها شركة.",
     fieldCompany: "الشركة",
-    chooseCompany: "اختر شركة",
     fieldPoints: "النقاط",
     fieldDate: "تاريخ الشراء",
     fieldNote: "ملاحظة (اختيارية)",
@@ -710,34 +664,18 @@ const ar: Dict = {
     A06: "فائدة المكافآت", A07: "الشعور بالتقدير", A09: "تجربة المكافآت",
   }),
   itemShort: codeMap({ A07: "التقدير", A09: "تجربة المكافأة", A06: "الفائدة", A05: "المتاجر", A03: "السهولة", A01: "الوضوح" }),
-  orgLabels: codeMap({
-    B01: "دعم الإعداد والتهيئة", B02: "سهولة توزيع النقاط", B03: "الوقت الإداري مقارنة بالسابق",
-    B04: "تحقيق أهداف التقدير", B05: "دعم Asalah", B06: "الصعوبات", B07: "توفر التقارير",
-    B08: "احتمال الاستمرار", B09: "خطط التوسع",
-  }),
   barriers: codeMap({
     SAVE: "ادخار النقاط لوقت لاحق", HOW: "عدم معرفة طريقة الاستبدال", BALANCE: "الرصيد غير كافٍ",
     MERCHANT: "المتاجر أو الخيارات غير مناسبة", TERMS: "عدم الوضوح بشأن الشروط أو مدة الصلاحية",
     TECH: "مشكلة تقنية أو في الدخول", TIME: "ضيق الوقت", OTHER: "أخرى",
     NOT_RECEIVED: "لم أستلم نقاط",
   }),
-  codes: codeMap({
-    SOME_LESS: "وقت أقل إلى حدٍّ ما", MUCH_LESS: "وقت أقل بكثير", NO_CHANGE: "لا تغيير",
-    SOME_MORE: "وقت أكثر إلى حدٍّ ما", MUCH_MORE: "وقت أكثر بكثير", NOT_APPLICABLE: "لا ينطبق",
-    ONBOARDING: "الإعداد والتهيئة", ALLOCATION: "توزيع النقاط", REDEMPTION: "مشكلات الاستبدال",
-    REPORT: "التقارير", INVOICING: "الفوترة", SUPPORT: "الدعم", OTHER: "أخرى", NONE: "لا شيء",
-    EXPANDING: "التوسع جارٍ بالفعل", PLANNED: "التوسع مخطط له", POSSIBLE: "ممكن، وغير مخطط له",
-    DONT_KNOW: "لا يعرف", FILE: "إجراء قائم على الملفات", PAYROLL: "نظام الرواتب",
-    NO_SUPPORT: "لا حاجة إلى دعم", NOT_DECIDER: "غير مشارك في القرار",
-    TOO_EARLY: "من المبكر الحكم", NO_REPORTS: "لا تتوفر تقارير",
-    DUP: "توزيع مكرر", MISMATCH: "السجلات غير متطابقة",
-  }),
   audience: codeMap({ A: "موظف", B: "الموارد البشرية", C: "المالية", D: "تقنية المعلومات" }),
   metrics: {
     /* ---------- Tracking ---------- */
     "tracking.total": {
       title: "إجمالي النقاط المشتراة",
-      text: "النقاط التي اشترتها الشركات، وهي مجموع عمليات الشراء المدرجة في هذه الصفحة. ترى الموارد البشرية في الشركة شركتها فقط، بينما ترى Asalah و STC جميع الشركات أو الشركة المختارة. لا يسجّل عمليات الشراء إلا Asalah.",
+      text: "النقاط التي اشترتها الشركة، وهي مجموع عمليات الشراء المدرجة أدناه. ترى الموارد البشرية في الشركة شركتها فقط، بينما ترى Asalah و STC الشركة التي يختارانها. لا يسجّل عمليات الشراء إلا Asalah.",
     },
 
     /* ---------- Portfolio ---------- */
@@ -840,10 +778,6 @@ const ar: Dict = {
     "company.motivation": {
       title: "أثر المكافآت في الدافعية",
       text: "كيف وصف الموظفون تأثير المكافآت في دافعيتهم. «ازدادت» = ازدادت قليلًا أو كثيرًا؛ «انخفضت» = انخفضت قليلًا أو كثيرًا. لا تشمل النسب خيار «أفضّل عدم الإجابة». لا تظهر إلا عندما يبلغ عدد المجيبين الحد الأدنى على الأقل.",
-    },
-    "company.org": {
-      title: "تقييم الموارد البشرية",
-      text: "إجابات من ممثل واحد معتمد من الموارد البشرية في الشركة. الحالة: تم الإرسال / لم يُرسل. تتراوح الدرجات من 1 (الأدنى) إلى 5 (الأعلى).",
     },
     "company.actions": {
       title: "الإجراءات",

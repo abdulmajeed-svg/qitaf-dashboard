@@ -38,7 +38,7 @@ export const barrierText = (t: Dict, code: string) => t.barriers[code] ?? t.barr
 export const ITEM_COLS = ["A07", "A09", "A06", "A05", "A03", "A01"];
 
 // The first page of each role is where sign-in lands. Any page not listed for a role (for example
-// /portfolio for STC) redirects to that first page.
+// /portfolio or /tracking for STC) redirects to that first page.
 export const NAV: Record<Role, { href: string; label: keyof Dict["nav"] }[]> = {
   ADMIN: [
     { href: "/tracking", label: "tracking" },
@@ -52,7 +52,6 @@ export const NAV: Record<Role, { href: string; label: keyof Dict["nav"] }[]> = {
     { href: "/company", label: "surveyResults" },
   ],
   STC: [
-    { href: "/tracking", label: "tracking" },
     { href: "/stc", label: "programOverview" },
     { href: "/company", label: "companyResults" },
   ],
