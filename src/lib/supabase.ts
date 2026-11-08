@@ -21,7 +21,9 @@ type RpcName =
   | "get_company_dashboard"
   | "get_portfolio"
   | "get_stc_overview"
-  | "get_review_queue";
+  | "get_review_queue"
+  | "get_points_tracking"
+  | "add_points_purchase";
 
 export async function rpc<T>(name: RpcName, args?: Record<string, unknown>): Promise<T> {
   const { data, error } = await getSupabase().rpc(name, args ?? {});

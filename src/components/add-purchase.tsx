@@ -1,0 +1,83 @@
+"use client";
+
+import { useState } from "react";
+import { rpc } from "@/lib/supabase";
+import { useLang } from "@/lib/lang-context";
+import { useToast } from "@/lib/toast";
+import type { CompanyRef } from "@/lib/types";
+
+const NOTE_MAX = 200;
+
+// Admin only: records points a company bought. Checked here first so people get a clear message;
+// the database checks again (add_points_purchase is Admin only there too).
+export function AddPurchase({ companies, onAdded }: { companies: CompanyRef[]; onAdded: () => void }) {
+  const { t } = useLang();
+  const toast = useToast();
+  const today = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD, so "today" is never counted as the future
+  const [company, setCompany] = useState("");
+  const [points, setPoints] = useState("");
+  const [date, setDate] = useState(today);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  function problem() {
+    const p = points.trim();
+    if (!company) return t.tracking.errCompany;
+    if (!/^\d+$/.test(p) || !Number.isSafeInteger(Number(p)) || Number(p) <= 0) return t.tracking.errPoints;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) return t.tracking.errDate;
+    if (note.length > NOTE_MAX) return t.tracking.errNote;
+    return "";
+  }
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const p = problem();
+    setError(p);
+    if (p) return;
+    setBusy(true);
+    try {
+      await rpc("add_points_purchase", { p_company: company, p_points: Number(points.trim()), p_date: date, p_note: note.trim() || null });
+      setPoints("");
+      setNote("");
+      toast(t.tracking.saved);
+      onAdded();
+    } catch (err) {
+      setError(t.tracking.saveFailed(err instanceof Error ? err.message : t.common.somethingWrong));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="panel mt">
+      <h2>{t.tracking.addTitle}</h2>
+      <p className="section-sub">{t.tracking.addSub}</p>
+      <form onSubmit={onSubmit} noValidate>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end" }}>
+          <div className="field" style={{ flex: "2 1 200px", marginTop: 0 }}>
+            <label htmlFor="purchase-company">{t.tracking.fieldCompany}</label>
+            <select id="purchase-company" value={company} onChange={(e) => setCompany(e.target.value)} required>
+              <option value="">{t.tracking.chooseCompany}</option>
+              {companies.map((c) => <option key={c.company_id} value={c.company_id}>{c.name}</option>)}
+            </select>
+          </div>
+          <div className="field" style={{ flex: "1 1 120px", marginTop: 0 }}>
+            <label htmlFor="purchase-points">{t.tracking.fieldPoints}</label>
+            <input id="purchase-points" type="text" inputMode="numeric" dir="ltr" required value={points} onChange={(e) => setPoints(e.target.value)} />
+          </div>
+          <div className="field" style={{ flex: "1 1 150px", marginTop: 0 }}>
+            <label htmlFor="purchase-date">{t.tracking.fieldDate}</label>
+            <input id="purchase-date" type="date" required max={today} value={date} onChange={(e) => setDate(e.target.value)} />
+          </div>
+          <div className="field" style={{ flex: "3 1 240px", marginTop: 0 }}>
+            <label htmlFor="purchase-note">{t.tracking.fieldNote}</label>
+            <input id="purchase-note" type="text" maxLength={NOTE_MAX} value={note} onChange={(e) => setNote(e.target.value)} />
+          </div>
+          <button className="btn" type="submit" disabled={busy}>{busy ? t.tracking.saving : t.tracking.submit}</button>
+        </div>
+        <div className="error" role="alert">{error}</div>
+      </form>
+    </section>
+  );
+}

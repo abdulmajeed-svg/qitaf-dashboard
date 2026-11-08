@@ -146,6 +146,23 @@ export type StcOverview =
       generated_at: string;
     };
 
+export interface PointsPurchase {
+  purchase_id: string | number;
+  company_id: string;
+  company: string;
+  points: number;
+  purchased_on: string; // YYYY-MM-DD
+  note: string | null;
+}
+
+// get_points_tracking: Company HR always get their own company; Admin and STC all companies or the one asked for.
+export interface PointsTracking {
+  scope: string;
+  total_points: number;
+  purchases: PointsPurchase[];
+  generated_at: string;
+}
+
 export interface ReviewRow {
   response_id: string;
   submitted_at: string;

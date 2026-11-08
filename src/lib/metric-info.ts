@@ -4,9 +4,10 @@ import type { MetricId } from "./i18n";
 
 export type { Metric, MetricId } from "./i18n";
 
-export type Section = "Portfolio" | "Heatmap columns" | "Company results" | "STC view" | "Review queue";
+export type Section = "Tracking" | "Portfolio" | "Heatmap columns" | "Company results" | "STC view" | "Review queue";
 
 export const METRIC_SECTION: Record<MetricId, Section> = {
+  "tracking.total": "Tracking",
   "portfolio.companies": "Portfolio",
   "portfolio.answers": "Portfolio",
   "portfolio.below": "Portfolio",
@@ -46,11 +47,11 @@ export const itemMetricId = (code: string): MetricId | undefined => {
   return id in METRIC_SECTION ? (id as MetricId) : undefined;
 };
 
-export const SECTION_ORDER: Section[] = ["Portfolio", "Heatmap columns", "Company results", "STC view", "Review queue"];
+export const SECTION_ORDER: Section[] = ["Tracking", "Portfolio", "Heatmap columns", "Company results", "STC view", "Review queue"];
 
 // Which sections to list first in the glossary for each role (all sections are still shown).
 export const ROLE_FIRST: Record<"ADMIN" | "COMPANY_HR" | "STC", Section[]> = {
-  ADMIN: ["Portfolio", "Heatmap columns", "Company results", "STC view", "Review queue"],
-  COMPANY_HR: ["Company results"],
-  STC: ["STC view", "Company results"],
+  ADMIN: ["Tracking", "Portfolio", "Heatmap columns", "Company results", "STC view", "Review queue"],
+  COMPANY_HR: ["Tracking", "Company results"],
+  STC: ["Tracking", "STC view", "Company results"],
 };

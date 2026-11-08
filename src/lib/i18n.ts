@@ -53,12 +53,14 @@ const en = {
     signOut: "Sign out",
     couldNotLoadAccount: "Could not load your account",
     switchLanguage: "Switch to Arabic (العربية)",
+    otherLanguage: "العربية",
   },
   roles: { ADMIN: "Asalah admin", STC: "STC", COMPANY_HR: "Company HR" },
   nav: {
+    tracking: "Tracking",
     portfolio: "Portfolio",
     companyResults: "Company results",
-    ourResults: "Our results",
+    surveyResults: "Survey results",
     stcView: "STC view",
     programOverview: "Program overview",
     reviewQueue: "Review queue",
@@ -78,6 +80,7 @@ const en = {
     about: (title: string) => `About ${title}`,
     close: (title: string) => `Close: ${title}`,
     sections: {
+      Tracking: "Tracking",
       Portfolio: "Portfolio",
       "Heatmap columns": "Heatmap columns",
       "Company results": "Company results",
@@ -102,6 +105,7 @@ const en = {
     tried: "Tried to redeem",
     redeemed: "Redeemed",
     funnelAria: (received: number, tried: number, succeeded: number) => `${received} received, ${tried} tried, ${succeeded} redeemed`,
+    failed: (tried: number, succeeded: number) => `Failed to redeem: ${tried - succeeded} (${tried} tried − ${succeeded} redeemed)`,
   },
   status: {
     reportChip: (status: ReportStatus, n: number, min: number) =>
@@ -233,6 +237,33 @@ const en = {
     barriersSub: "Reasons from every participating company that has enough answers, added together. Pilot data is excluded.",
     footer: "Survey answers, not verified STC transactions. Combined results appear only when at least 3 companies each have the minimum number of valid responses for their survey round. No company names are shown.",
   },
+  tracking: {
+    title: "Tracking",
+    sub: "When companies bought points.",
+    total: "Total points bought",
+    allCompanies: "All companies",
+    listFailed: (msg: string) => `Could not load the company list: ${msg}`,
+    purchases: "Purchases",
+    colDate: "Date",
+    colCompany: "Company",
+    colPoints: "Points",
+    empty: "No point purchases recorded yet.",
+    addTitle: "Add purchase",
+    addSub: "Record points a company bought.",
+    fieldCompany: "Company",
+    chooseCompany: "Choose a company",
+    fieldPoints: "Points",
+    fieldDate: "Purchase date",
+    fieldNote: "Note (optional)",
+    submit: "Add purchase",
+    saving: "Saving…",
+    errCompany: "Choose a company.",
+    errPoints: "Points must be a whole number above zero.",
+    errDate: "Choose a date that is not in the future.",
+    errNote: "The note can be at most 200 characters.",
+    saveFailed: (msg: string) => `Could not save the purchase: ${msg}`,
+    saved: "Purchase added.",
+  },
   review: {
     title: "Review queue",
     sub: "Answers that failed validation. They are kept, not counted, until fixed.",
@@ -253,7 +284,7 @@ const en = {
     SAVE: "Saving points for later", HOW: "Do not know how to redeem", BALANCE: "Balance is insufficient",
     MERCHANT: "Merchants or options do not suit me", TERMS: "Unsure about the conditions or validity",
     TECH: "Technical or access problem", TIME: "Have not had time", OTHER: "Other",
-    NOT_RECEIVED: "Did not think they received points", // from question A02, added to the barriers by the database
+    NOT_RECEIVED: "Did not receive points", // from question A02, added to the barriers by the database
   }),
   codes: codeMap({
     SOME_LESS: "Somewhat less time", MUCH_LESS: "Much less time", NO_CHANGE: "No change",
@@ -268,6 +299,12 @@ const en = {
   }),
   audience: codeMap({ A: "Employee", B: "HR", C: "Finance", D: "IT" }),
   metrics: {
+    /* ---------- Tracking ---------- */
+    "tracking.total": {
+      title: "Total points bought",
+      text: "Points that companies have bought, added up from the purchases listed on this page. Company HR see their own company; Asalah and STC see all companies or the one they select. Only Asalah can record a purchase.",
+    },
+
     /* ---------- Portfolio ---------- */
     "portfolio.companies": {
       title: "Companies",
@@ -412,6 +449,8 @@ const arCount = (n: number, one: string, two: string, few: string, many: string)
   return form === "one" ? one : form === "two" ? two : form === "few" ? `${n} ${few}` : `${n} ${many}`;
 };
 const arValid = (n: number) => arCount(n, "استجابة صالحة واحدة", "استجابتان صالحتان", "استجابات صالحة", "استجابة صالحة");
+// "4.2 / 5" inside a left-to-right isolate (LRI … PDI), so right-to-left text does not reverse it.
+const arScore = (score: string | number) => `⁦${score} / 5⁩`;
 const arUnderMin = (min?: number) => (min ? `عدد الاستجابات الصالحة أقل من ${min}` : "عدد الاستجابات الصالحة أقل من الحد الأدنى");
 const AR_ITEM_HOW = "متوسط تقييمات الموظفين لهذا السؤال من 1 (الأدنى) إلى 5 (الأعلى).";
 const AR_ITEM_HIDDEN = "عدد الاستجابات الصالحة لهذا السؤال في جولة الاستبيان هذه أقل من الحد الأدنى.";
@@ -424,7 +463,7 @@ const ar: Dict = {
     refresh: "تحديث",
     closeEsc: "إغلاق (Esc)",
     hidden: "مخفي",
-    outOf5: " من 5",
+    outOf5: " / 5", // same as English; shown inside a left-to-right isolate so it reads 4.2 / 5
     dataUpdated: "تم تحديث البيانات",
     somethingWrong: "حدث خطأ ما",
     couldNotLoadPage: "تعذّر تحميل هذه الصفحة",
@@ -443,12 +482,14 @@ const ar: Dict = {
     signOut: "تسجيل الخروج",
     couldNotLoadAccount: "تعذّر تحميل حسابك",
     switchLanguage: "التبديل إلى الإنجليزية (English)",
+    otherLanguage: "English",
   },
   roles: { ADMIN: "مسؤول Asalah", STC: "STC", COMPANY_HR: "الموارد البشرية في الشركة" },
   nav: {
+    tracking: "التتبع",
     portfolio: "محفظة الشركات",
     companyResults: "نتائج الشركة",
-    ourResults: "نتائجنا",
+    surveyResults: "نتائج الاستبيان",
     stcView: "عرض STC",
     programOverview: "نظرة عامة على البرنامج",
     reviewQueue: "قائمة المراجعة",
@@ -468,6 +509,7 @@ const ar: Dict = {
     about: (title) => `حول: ${title}`,
     close: (title) => `إغلاق: ${title}`,
     sections: {
+      Tracking: "التتبع",
       Portfolio: "محفظة الشركات",
       "Heatmap columns": "أعمدة الخريطة الحرارية",
       "Company results": "نتائج الشركة",
@@ -486,12 +528,13 @@ const ar: Dict = {
   },
   charts: {
     ringAria: (pct) => `نسبة الرضا ${pct}%`,
-    scoreTip: (label, score, n) => `${label}: ${score} من 5، عدد الاستجابات: ${n}`,
+    scoreTip: (label, score, n) => `${label}: ${arScore(score)}، عدد الاستجابات: ${n}`,
     hiddenTip: (label, min) => `${label}: مخفي: ${arUnderMin(min)}`,
     received: "استلموا النقاط",
     tried: "حاولوا الاستبدال",
     redeemed: "استبدلوا النقاط",
     funnelAria: (received, tried, succeeded) => `استلم النقاط ${received}، وحاول الاستبدال ${tried}، واستبدلها ${succeeded}`,
+    failed: (tried, succeeded) => `فشلوا في الاستبدال: ${tried - succeeded} (${tried} حاولوا − ${succeeded} استبدلوا)`,
   },
   status: {
     reportChip: (status, n, min) =>
@@ -556,7 +599,7 @@ const ar: Dict = {
   },
   hr: {
     chartAria: (title) => `${title}، الدرجات من 1 إلى 5`,
-    barTip: (title, label, score) => `${title}، ${label}: ${score} من 5`,
+    barTip: (title, label, score) => `${title}، ${label}: ${arScore(score)}`,
     notSubmitted: "لم تُرسل الموارد البشرية هذا التقييم بعد.",
     notApplicable: "تقييم الموارد البشرية لا ينطبق على هذه الشركة.",
     noScores: "لا توجد إجابات مُقيَّمة من الموارد البشرية بعد.",
@@ -599,7 +642,7 @@ const ar: Dict = {
     invitedNotConfirmed: "عدد المدعوين غير مؤكد",
     rateOf: (responded, invited) => `${responded} من ${invited}`,
     hiddenCellTip: (name, label, min) => `${name}، ${label}: مخفي: ${arUnderMin(min)}`,
-    cellTip: (name, label, v, n) => `${name}، ${label}: ${v} من 5، ${arValid(n)} في هذه الشركة`,
+    cellTip: (name, label, v, n) => `${name}، ${label}: ${arScore(v)}، ${arValid(n)} في هذه الشركة`,
     actionsSub: "في جميع الشركات، الأقرب موعدًا أولًا.",
     barriersSub: "أسباب جميع الشركات التي لديها إجابات كافية، مجمّعة معًا.",
     fullResults: (name) => `النتائج الكاملة لـ ${name}`,
@@ -622,6 +665,33 @@ const ar: Dict = {
     jointActionsSub: "المتابعة المتفق عليها بين Asalah و STC.",
     barriersSub: "أسباب جميع الشركات المشاركة التي لديها إجابات كافية، مجمّعة معًا، دون بيانات المرحلة التجريبية.",
     footer: "إجابات استبيان، وليست معاملات STC موثّقة. لا تظهر النتائج المجمّعة إلا عندما تستوفي 3 شركات على الأقل الحد الأدنى من الاستجابات الصالحة في جولة الاستبيان الخاصة بكل منها. لا تُعرض أسماء الشركات.",
+  },
+  tracking: {
+    title: "التتبع",
+    sub: "متى اشترت الشركات النقاط.",
+    total: "إجمالي النقاط المشتراة",
+    allCompanies: "جميع الشركات",
+    listFailed: (msg) => `تعذّر تحميل قائمة الشركات: ${msg}`,
+    purchases: "عمليات الشراء",
+    colDate: "التاريخ",
+    colCompany: "الشركة",
+    colPoints: "النقاط",
+    empty: "لم تُسجَّل أي عمليات شراء للنقاط بعد.",
+    addTitle: "إضافة عملية شراء",
+    addSub: "سجّل النقاط التي اشترتها شركة.",
+    fieldCompany: "الشركة",
+    chooseCompany: "اختر شركة",
+    fieldPoints: "النقاط",
+    fieldDate: "تاريخ الشراء",
+    fieldNote: "ملاحظة (اختيارية)",
+    submit: "إضافة عملية الشراء",
+    saving: "جارٍ الحفظ…",
+    errCompany: "اختر شركة.",
+    errPoints: "يجب أن تكون النقاط عددًا صحيحًا أكبر من صفر.",
+    errDate: "اختر تاريخًا ليس في المستقبل.",
+    errNote: "يجب ألا تتجاوز الملاحظة 200 حرف.",
+    saveFailed: (msg) => `تعذّر حفظ عملية الشراء: ${msg}`,
+    saved: "تمت إضافة عملية الشراء.",
   },
   review: {
     title: "قائمة المراجعة",
@@ -649,7 +719,7 @@ const ar: Dict = {
     SAVE: "ادخار النقاط لوقت لاحق", HOW: "عدم معرفة طريقة الاستبدال", BALANCE: "الرصيد غير كافٍ",
     MERCHANT: "المتاجر أو الخيارات غير مناسبة", TERMS: "عدم الوضوح بشأن الشروط أو مدة الصلاحية",
     TECH: "مشكلة تقنية أو في الدخول", TIME: "ضيق الوقت", OTHER: "أخرى",
-    NOT_RECEIVED: "الاعتقاد بعدم استلام النقاط",
+    NOT_RECEIVED: "لم أستلم نقاط",
   }),
   codes: codeMap({
     SOME_LESS: "وقت أقل إلى حدٍّ ما", MUCH_LESS: "وقت أقل بكثير", NO_CHANGE: "لا تغيير",
@@ -664,6 +734,12 @@ const ar: Dict = {
   }),
   audience: codeMap({ A: "موظف", B: "الموارد البشرية", C: "المالية", D: "تقنية المعلومات" }),
   metrics: {
+    /* ---------- Tracking ---------- */
+    "tracking.total": {
+      title: "إجمالي النقاط المشتراة",
+      text: "النقاط التي اشترتها الشركات، وهي مجموع عمليات الشراء المدرجة في هذه الصفحة. ترى الموارد البشرية في الشركة شركتها فقط، بينما ترى Asalah و STC جميع الشركات أو الشركة المختارة. لا يسجّل عمليات الشراء إلا Asalah.",
+    },
+
     /* ---------- Portfolio ---------- */
     "portfolio.companies": {
       title: "الشركات",

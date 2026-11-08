@@ -40,7 +40,7 @@ function GroupChart({ title, items }: { title: string; items: OrgItem[] }) {
               ))}
               <span className="hrit-bar" style={{ width: entered ? `${w}%` : "0%", background: scoreColor(score), transitionDelay: `${i * 70}ms` }} />
             </Tip>
-            <span className="hrit-val">{score}{t.common.outOf5}</span>
+            <span className="hrit-val"><bdi dir="ltr">{score}{t.common.outOf5}</bdi></span>
           </div>
         );
       })}

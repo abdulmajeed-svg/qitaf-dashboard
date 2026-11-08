@@ -90,7 +90,7 @@ export function ScoreDots({ items, min, suffix = "" }: { items: Item[]; min?: nu
               <span className="fill" style={{ display: "block", width: `${pct}%`, background: col, ...delay }} />
               <span className="dot" style={{ insetInlineStart: `${pct}%`, background: col, ...delay }} />
             </Tip>
-            <span className="score">{it.score.toFixed(1)}{suffix}</span>
+            <span className="score"><bdi dir="ltr">{it.score.toFixed(1)}{suffix}</bdi></span>
           </div>
         );
       })}
@@ -110,11 +110,14 @@ export function FunnelChart({ f }: { f: Funnel }) {
     </div>
   );
   return (
-    <div className="funnel" role="img" aria-label={t.charts.funnelAria(f.received, f.tried, f.succeeded)}>
-      {col(f.received, t.charts.received, "var(--funnel-1)", 0)}
-      {col(f.tried, t.charts.tried, "var(--blue)", 1)}
-      {col(f.succeeded, t.charts.redeemed, "var(--brand)", 2)}
-    </div>
+    <>
+      <div className="funnel" role="img" aria-label={t.charts.funnelAria(f.received, f.tried, f.succeeded)}>
+        {col(f.received, t.charts.received, "var(--funnel-1)", 0)}
+        {col(f.tried, t.charts.tried, "var(--blue)", 1)}
+        {col(f.succeeded, t.charts.redeemed, "var(--brand)", 2)}
+      </div>
+      <p className="small muted" style={{ margin: "12px 0 0" }}>{t.charts.failed(f.tried, f.succeeded)}</p>
+    </>
   );
 }
 

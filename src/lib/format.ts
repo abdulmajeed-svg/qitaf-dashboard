@@ -22,6 +22,9 @@ export const minResponses = (v: number | null | undefined) =>
 export const fmtDate = (d: string | null | undefined, lang: Lang = "en") =>
   d ? new Date(d).toLocaleDateString(LOCALE[lang], { day: "numeric", month: "short", year: "numeric" }) : "";
 
+// Thousands separators and Western digits in both languages: 12,500.
+export const fmtNumber = (n: number) => n.toLocaleString("en-US");
+
 export const fmtTime = (d: Date) =>
   d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
@@ -34,16 +37,22 @@ export const barrierText = (t: Dict, code: string) => t.barriers[code] ?? t.barr
 // Heatmap question columns, in display order; their labels are in the dictionary (itemShort).
 export const ITEM_COLS = ["A07", "A09", "A06", "A05", "A03", "A01"];
 
+// The first page of each role is where sign-in lands. Any page not listed for a role (for example
+// /portfolio for STC) redirects to that first page.
 export const NAV: Record<Role, { href: string; label: keyof Dict["nav"] }[]> = {
   ADMIN: [
+    { href: "/tracking", label: "tracking" },
     { href: "/portfolio", label: "portfolio" },
     { href: "/company", label: "companyResults" },
     { href: "/stc", label: "stcView" },
     { href: "/review", label: "reviewQueue" },
   ],
-  COMPANY_HR: [{ href: "/company", label: "ourResults" }],
-  // Any page not listed for a role (for example /portfolio for STC) redirects to the role's first page.
+  COMPANY_HR: [
+    { href: "/tracking", label: "tracking" },
+    { href: "/company", label: "surveyResults" },
+  ],
   STC: [
+    { href: "/tracking", label: "tracking" },
     { href: "/stc", label: "programOverview" },
     { href: "/company", label: "companyResults" },
   ],

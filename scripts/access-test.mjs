@@ -47,8 +47,13 @@ const tablesBlocked = async (group, sb) => {
   }
 };
 
+// A points purchase for the write checks. Roles that must be refused get exactly this, so a wrongly allowed
+// call is easy to find and delete afterwards (note "access-test").
+const PURCHASE = { p_company: "TEST-012", p_points: 1, p_date: new Date().toLocaleDateString("en-CA"), p_note: "access-test" };
+
 /* ---------- Admin first: also gives us the real company names to look for in the STC data ---------- */
 let companyNames = [];
+let adminPurchaseCount = null;
 {
   const G = "ADMIN";
   const sb = await login(G, "QA_ADMIN_EMAIL", "QA_ADMIN_PASSWORD");
@@ -71,6 +76,16 @@ let companyNames = [];
     check(G, "get_company_dashboard('TEST-009') is SUPPRESSED, items empty, csat null",
       !nine.error && d?.status === "SUPPRESSED" && Array.isArray(d.items) && d.items.length === 0 && d.kpi?.csat === null,
       nine.error ? brief(nine) : `status=${d?.status} items=${d?.items?.length} csat=${d?.kpi?.csat}`);
+    // Adding a purchase writes a real row, so it only runs when asked for in .env.test.local.
+    if (process.env.QA_ALLOW_WRITES === "1") {
+      const add = await sb.rpc("add_points_purchase", PURCHASE);
+      check(G, "add_points_purchase works", !add.error, brief(add));
+    } else {
+      console.log(`SKIP  [${G}] add_points_purchase (writes a real purchase; set QA_ALLOW_WRITES=1 in .env.test.local to run it)`);
+    }
+    const tracking = await sb.rpc("get_points_tracking", { p_company: null });
+    check(G, "get_points_tracking(all companies) works", !tracking.error && Array.isArray(tracking.data?.purchases), brief(tracking));
+    if (Array.isArray(tracking.data?.purchases)) adminPurchaseCount = tracking.data.purchases.length;
   }
 }
 
@@ -84,7 +99,10 @@ let companyNames = [];
     const other = await sb.rpc("get_company_dashboard", { p_company: "TEST-015" });
     check(G, "get_company_dashboard('TEST-015') returns TEST-012, never TEST-015",
       !other.error && other.data?.company?.company_id === "TEST-012", other.error ? brief(other) : `got ${other.data?.company?.company_id}`);
-    await rpcErrors(G, sb, [["get_portfolio"], ["get_stc_overview"], ["get_review_queue"], ["list_companies"]]);
+    const own = await sb.rpc("get_points_tracking", { p_company: "TEST-015" });
+    check(G, "get_points_tracking('TEST-015') returns only TEST-012 purchases",
+      !own.error && Array.isArray(own.data?.purchases) && own.data.purchases.every((p) => p.company_id === "TEST-012"), brief(own));
+    await rpcErrors(G, sb, [["get_portfolio"], ["get_stc_overview"], ["get_review_queue"], ["list_companies"], ["add_points_purchase", PURCHASE]]);
     await tablesBlocked(G, sb);
   }
 }
@@ -106,7 +124,11 @@ let companyNames = [];
     check(G, "list_companies works", !list.error && Array.isArray(list.data), brief(list));
     const dash = await sb.rpc("get_company_dashboard", { p_company: "TEST-012" });
     check(G, "get_company_dashboard('TEST-012') works", !dash.error && dash.data?.company?.company_id === "TEST-012", brief(dash));
-    await rpcErrors(G, sb, [["get_portfolio"], ["get_review_queue"]]);
+    const tracking = await sb.rpc("get_points_tracking", { p_company: null });
+    check(G, "get_points_tracking(all companies) works, same purchases as ADMIN",
+      !tracking.error && Array.isArray(tracking.data?.purchases) && (adminPurchaseCount === null || tracking.data.purchases.length === adminPurchaseCount),
+      tracking.error ? brief(tracking) : `got ${tracking.data?.purchases?.length}, ADMIN got ${adminPurchaseCount}`);
+    await rpcErrors(G, sb, [["get_portfolio"], ["get_review_queue"], ["add_points_purchase", PURCHASE]]);
     await tablesBlocked(G, sb);
   }
 }
@@ -120,7 +142,7 @@ let companyNames = [];
   check(G, "my_profile gives error or null", !!prof.error || prof.data == null, brief(prof));
   await rpcErrors(G, sb, [
     ["list_companies"], ["get_company_dashboard", { p_company: "TEST-012" }], ["get_portfolio"],
-    ["get_stc_overview"], ["get_review_queue"],
+    ["get_stc_overview"], ["get_review_queue"], ["get_points_tracking"], ["add_points_purchase", PURCHASE],
   ]);
   await tablesBlocked(G, sb);
 }

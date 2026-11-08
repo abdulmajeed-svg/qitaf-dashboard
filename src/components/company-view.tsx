@@ -98,8 +98,8 @@ export function CompanyView({ d }: { d: CompanyDashboard }) {
             </Kpi>
             {appreciated ? (
               <Kpi label={t.company.appreciated} info="company.appreciated" watch={appreciated.score}
-                value={appreciated.score !== null ? <AnimatedNumber value={appreciated.score} decimals={1} suffix={t.common.outOf5} /> : "—"}
-                note={appreciated.score !== null ? t.common.validResponses(appreciated.n) : t.company.hiddenNote(min)} />
+                value={appreciated.score !== null ? <bdi dir="ltr"><AnimatedNumber value={appreciated.score} decimals={1} suffix={t.common.outOf5} /></bdi> : "—"}
+                note={appreciated.score !== null ? undefined : t.company.hiddenNote(min)} />
             ) : null}
           </section>
 
