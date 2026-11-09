@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { today as localToday } from "@/lib/format";
+import { NOTE_MAX, purchaseProblem } from "@/lib/purchases";
 import { rpc } from "@/lib/supabase";
 import { useLang } from "@/lib/lang-context";
 import { useToast } from "@/lib/toast";
 import type { CompanyRef } from "@/lib/types";
 import { CompanySearch } from "./company-search";
-
-const NOTE_MAX = 200;
 
 // Admin only: records points a company bought. Checked here first so people get a clear message;
 // the database checks again (add_points_purchase is Admin only there too).
@@ -20,26 +20,17 @@ export function AddPurchase({ companies, company, onCompanyChange, onAdded }: {
 }) {
   const { t } = useLang();
   const toast = useToast();
-  const today = new Date().toLocaleDateString("en-CA"); // local YYYY-MM-DD, so "today" is never counted as the future
+  const today = localToday();
   const [points, setPoints] = useState("");
   const [date, setDate] = useState(today);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  function problem() {
-    const p = points.trim();
-    if (!company) return t.tracking.errCompany;
-    if (!/^\d+$/.test(p) || !Number.isSafeInteger(Number(p)) || Number(p) <= 0) return t.tracking.errPoints;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) return t.tracking.errDate;
-    if (note.length > NOTE_MAX) return t.tracking.errNote;
-    return "";
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const p = problem();
-    setError(p);
+    const p = purchaseProblem({ hasCompany: !!company, points, date, note }, today);
+    setError(p ? t.tracking[p] : "");
     if (p || !company) return;
     setBusy(true);
     try {

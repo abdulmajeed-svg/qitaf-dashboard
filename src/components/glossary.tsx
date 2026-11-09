@@ -12,7 +12,8 @@ export function GlossaryButton({ role }: { role: Role }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
   const first = ROLE_FIRST[role];
-  const sections = [...first, ...SECTION_ORDER.filter((s) => !first.includes(s))];
+  const sections = [...first, ...SECTION_ORDER.filter((s) => !first.includes(s))]
+    .filter((s) => role !== "STC" || s !== "Tracking"); // STC has no Tracking
   const ids = Object.keys(METRIC_SECTION) as MetricId[];
 
   return (

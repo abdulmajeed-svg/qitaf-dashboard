@@ -4,9 +4,6 @@ import type { ReportStatus } from "./types";
 
 export type Lang = "en" | "ar";
 
-// Dates: English as before; Arabic month names with the Gregorian calendar and Western digits.
-export const LOCALE: Record<Lang, string> = { en: "en-GB", ar: "ar-u-ca-gregory-nu-latn" };
-
 // One "ⓘ" explanation. Either one paragraph (text) or up to three short parts (what / how / hidden).
 export interface Metric {
   title: string;
@@ -96,6 +93,7 @@ const en = {
     signingIn: "Signing in…",
     wrongLogin: "Email or password is incorrect.",
     noAccess: "This account has no access yet. Ask Asalah to assign a role.",
+    failed: "Could not sign in right now. Please try again later.",
   },
   charts: {
     ringAria: (pct: number) => `${pct} percent satisfied`,
@@ -228,8 +226,8 @@ const en = {
     total: "Total points bought",
     listFailed: (msg: string) => `Could not load the company list: ${msg}`,
     purchases: "Purchases",
-    colDate: "Date",
-    colPoints: "Points",
+    monthTotal: "Month total:",
+    yearTotal: "Year total:",
     empty: "No point purchases recorded yet.",
     emptyCompany: "No point purchases recorded yet for this company.",
     hint: "Search for a company to see its purchases.",
@@ -275,7 +273,7 @@ const en = {
     /* ---------- Tracking ---------- */
     "tracking.total": {
       title: "Total points bought",
-      text: "Points a company has bought, added up from the purchases listed below. Company HR see their own company; Asalah and STC see the company they choose. Only Asalah can record a purchase.",
+      text: "Points a company has bought, added up from the purchases listed below. Company HR see their own company; Asalah sees the company they choose and is the only one who can record a purchase.",
     },
 
     /* ---------- Portfolio ---------- */
@@ -494,6 +492,7 @@ const ar: Dict = {
     signingIn: "جارٍ تسجيل الدخول…",
     wrongLogin: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
     noAccess: "لا يملك هذا الحساب صلاحية الوصول بعد. اطلب من Asalah تعيين دور له.",
+    failed: "تعذّر تسجيل الدخول حاليًا. يُرجى المحاولة لاحقًا.",
   },
   charts: {
     ringAria: (pct) => `نسبة الرضا ${pct}%`,
@@ -626,8 +625,8 @@ const ar: Dict = {
     total: "إجمالي النقاط المشتراة",
     listFailed: (msg) => `تعذّر تحميل قائمة الشركات: ${msg}`,
     purchases: "عمليات الشراء",
-    colDate: "التاريخ",
-    colPoints: "النقاط",
+    monthTotal: "إجمالي الشهر:",
+    yearTotal: "إجمالي السنة:",
     empty: "لم تُسجَّل أي عمليات شراء للنقاط بعد.",
     emptyCompany: "لم تُسجَّل أي عمليات شراء للنقاط لهذه الشركة بعد.",
     hint: "ابحث عن شركة لعرض عمليات الشراء الخاصة بها.",
@@ -675,7 +674,7 @@ const ar: Dict = {
     /* ---------- Tracking ---------- */
     "tracking.total": {
       title: "إجمالي النقاط المشتراة",
-      text: "النقاط التي اشترتها الشركة، وهي مجموع عمليات الشراء المدرجة أدناه. ترى الموارد البشرية في الشركة شركتها فقط، بينما ترى Asalah و STC الشركة التي يختارانها. لا يسجّل عمليات الشراء إلا Asalah.",
+      text: "النقاط التي اشترتها الشركة، وهي مجموع عمليات الشراء المدرجة أدناه. ترى الموارد البشرية في الشركة شركتها فقط، بينما ترى Asalah الشركة التي تختارها، ولا يسجّل عمليات الشراء غيرها.",
     },
 
     /* ---------- Portfolio ---------- */

@@ -19,5 +19,3 @@ export function downloadCsv(filename: string, header: string[], rows: Cell[][]) 
   a.remove();
   URL.revokeObjectURL(url);
 }
-
-export const today = () => new Date().toISOString().slice(0, 10);

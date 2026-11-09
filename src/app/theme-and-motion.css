@@ -18,7 +18,6 @@
   --blue: #7333A3;
   --silver: #8E9AA0;
   --blocks-off: #DDDFE2;
-  --ref: #8E9AA0;
   --chip-ok-bg: #D9F5EB; --chip-ok-fg: #00694A;
   --chip-wait-bg: #FFF3BF; --chip-wait-fg: #5C4A00;
   --chip-bad-bg: #FFE1E7; --chip-bad-fg: #B3123A;
@@ -174,6 +173,29 @@ td.cell { box-shadow: inset 0 0 0 1px var(--bar-ring); }
 .combo-list li { padding: 9px 12px; border-radius: 8px; cursor: pointer; color: var(--text); }
 .combo-list li[aria-selected="true"] { background: var(--panel-2); color: var(--accent-text); }
 .combo-empty { padding: 10px 12px; color: var(--muted); }
+
+/* ---------- Purchases: one row of 12 month columns per year ---------- */
+.year-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 12px; margin-bottom: 14px; }
+.year-head h3 { font-size: 17px; font-weight: 600; margin: 0; }
+/* The 1px gaps show the line colour behind, so every column gets a divider however the row wraps. */
+.months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; }
+.month { min-width: 0; padding: 10px 8px 14px; background: var(--panel); }
+.month.has { background: color-mix(in srgb, var(--accent) 8%, var(--panel)); }
+.month-name { font-size: 13px; font-weight: 600; color: var(--muted); }
+.month.has .month-name { color: var(--accent-text); }
+.month-total { margin-top: 2px; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.month:not(.has) .month-total { color: var(--muted); font-weight: 400; }
+.month-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.month-list li { display: flex; flex-direction: column; padding-top: 8px; border-top: 1px dashed var(--line); }
+/* Numbers never break across lines; only the note wraps. */
+.month-pts { display: block; font-size: 13.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.month-note { overflow-wrap: anywhere; }
+/* An 8-digit total ("25,000,000") needs about 82px: 12 columns only have that at the full 1,360px width,
+   6 columns from 720px. */
+@media (max-width: 1359px) { .months { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .months { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .month { padding: 8px 6px 10px; } }
 
 /* ---------- Tabs (Company results) ---------- */
 .tabs { display: inline-flex; gap: 4px; padding: 4px; margin-top: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }

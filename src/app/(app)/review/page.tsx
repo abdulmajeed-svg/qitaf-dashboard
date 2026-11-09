@@ -2,15 +2,14 @@
 
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
-import { fmtTime } from "@/lib/format";
-import { LOCALE } from "@/lib/i18n";
+import { LOCALE } from "@/lib/format";
 import { useLang } from "@/lib/lang-context";
 import type { ReviewRow } from "@/lib/types";
 import { ErrorCard, PageHead, Skel } from "@/components/visuals";
 
 export default function ReviewPage() {
   const { t, lang } = useLang();
-  const { data: rows, error, updated, reload } = useRpcData<ReviewRow[]>(() => rpc("get_review_queue"), "review");
+  const { data: rows, error, reload } = useRpcData<ReviewRow[]>(() => rpc("get_review_queue"), "review");
   if (error) return <ErrorCard message={error} onRetry={reload} />;
   if (!rows) {
     return (
@@ -24,8 +23,7 @@ export default function ReviewPage() {
 
   return (
     <>
-      <PageHead title={t.review.title} info="review.about" sub={t.review.sub}
-        updated={updated} onRefresh={reload} fmt={fmtTime} />
+      <PageHead title={t.review.title} info="review.about" sub={t.review.sub} onRefresh={reload} />
       <section className="panel">
         {rows.length ? (
           <div className="table-box">

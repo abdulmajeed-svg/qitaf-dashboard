@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
-import { fmtTime } from "@/lib/format";
 import type { CompanyDashboard, CompanyRef } from "@/lib/types";
 import { ErrorCard, PageHead, PageSkeleton } from "@/components/visuals";
 import { CompanyView } from "@/components/company-view";
@@ -37,7 +36,7 @@ export default function CompanyPage() {
 
   // Company HR always passes null; the database picks their own company.
   const key = canPick ? company : "own";
-  const { data: d, error, updated, reload } = useRpcData<CompanyDashboard>(
+  const { data: d, error, reload } = useRpcData<CompanyDashboard>(
     () => rpc("get_company_dashboard", { p_company: canPick ? company : null }),
     key,
   );
@@ -52,8 +51,10 @@ export default function CompanyPage() {
     </>
   ) : null;
 
-  // Admin and STC: Survey results / Tracking tabs under the company name. Two tabs, so either arrow key switches.
-  const tabs = canPick ? (
+  // Admin only (STC has no Tracking): Survey results / Tracking tabs under the company name.
+  // Two tabs, so either arrow key switches.
+  const showTabs = profile.role === "ADMIN";
+  const tabs = showTabs ? (
     <div className="tabs" role="tablist" aria-label={t.nav.companyResults}>
       {TABS.map((id) => (
         <button key={id} type="button" role="tab" id={`tab-${id}`} aria-selected={tab === id} aria-controls="company-tabpanel"
@@ -79,11 +80,9 @@ export default function CompanyPage() {
         title={d.company.name}
         sub={tabs}
         extra={picker}
-        updated={updated}
         onRefresh={reload}
-        fmt={fmtTime}
       />
-      {canPick ? (
+      {showTabs ? (
         <div role="tabpanel" id="company-tabpanel" aria-labelledby={`tab-${tab}`}>
           {tab === "tracking" ? <CompanyPurchases companyId={d.company.company_id} /> : <CompanyView d={d} />}
         </div>

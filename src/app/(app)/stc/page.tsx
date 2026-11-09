@@ -2,7 +2,6 @@
 
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
-import { fmtTime } from "@/lib/format";
 import { useLang } from "@/lib/lang-context";
 import type { StcOverview } from "@/lib/types";
 import { InfoButton } from "@/components/info-button";
@@ -12,13 +11,12 @@ import {
 
 export default function StcPage() {
   const { t } = useLang();
-  const { data: d, error, updated, reload } = useRpcData<StcOverview>(() => rpc("get_stc_overview"), "stc");
+  const { data: d, error, reload } = useRpcData<StcOverview>(() => rpc("get_stc_overview"), "stc");
   if (error) return <ErrorCard message={error} onRetry={reload} />;
   if (!d) return <PageSkeleton />;
 
   const head = (
-    <PageHead title={t.stc.title} info="stc.about" sub={t.stc.sub}
-      updated={updated} onRefresh={reload} fmt={fmtTime} />
+    <PageHead title={t.stc.title} info="stc.about" sub={t.stc.sub} onRefresh={reload} />
   );
 
   if (d.status !== "REPORTABLE") {

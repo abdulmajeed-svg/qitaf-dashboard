@@ -1,22 +1,22 @@
 -- PROPOSAL ONLY. Not run by anyone yet.
 --
--- Goal: STC users can open any company's results like ADMIN: the company picker (list_companies) and
--- get_company_dashboard with p_company. STC is still refused the Portfolio page (get_portfolio) and the
--- review queue (get_review_queue); neither is changed here.
--- The dashboard already shows STC the Company results page with the picker; it works once this runs.
+-- Goal:
+--   1. get_company_dashboard stops sending the HR / IT assessment answers ("org"). The dashboard no longer
+--      shows them to anyone, but every caller still received them (Company HR got their IT answers too).
+--   2. STC can open any company's results like ADMIN: get_company_dashboard with p_company, and the company
+--      picker (list_companies). STC is still refused the Portfolio (get_portfolio), the review queue
+--      (get_review_queue) and purchases (see proposed-tracking-admin-hr-only.sql); none of those change here.
+-- Step 1 runs first, so STC never receives the assessment answers.
 --
--- How: each function is re-created from its current definition with only its role check changed, so
--- nothing else in the body is rewritten. A small helper does this and stops with an error, changing
--- nothing, unless the text to change appears exactly once.
+-- How: get_company_dashboard is re-created from its current definition with only two pieces of text
+-- changed, so nothing else in its body is rewritten; a small helper does this and stops with an error,
+-- changing nothing, unless each text appears exactly once. list_companies is renamed, untouched, to
+-- list_companies_base, and a new list_companies answers STC itself and passes everyone else to the original.
 --
 -- Works before or after proposed-motivation.sql: if get_company_dashboard was already renamed to
--- get_company_dashboard_base, the role check is patched there.
+-- get_company_dashboard_base, that is the one patched.
 --
 -- The script ends with ROLLBACK, so running it as is changes nothing. Change it to COMMIT once checked.
-
-
--- 0. Read-only check to run first (changes nothing): the current definition, to find its role check.
---   select pg_get_functiondef('public.list_companies()'::regprocedure);
 
 
 begin;
@@ -35,27 +35,68 @@ begin
 end;
 $$;
 
--- get_company_dashboard: STC may pass any company, like ADMIN. Company HR still always gets their own.
--- (This line is from the definition in get_company_dashboard_ORIGINAL.sql.)
+-- 1. No more assessment answers in the response (the key stays, empty). Text from get_company_dashboard_ORIGINAL.sql.
+select pg_temp.patch_function(
+  coalesce(to_regprocedure('public.get_company_dashboard_base(text)'), 'public.get_company_dashboard(text)'::regprocedure),
+  $t$'org', v_org,$t$,
+  $t$'org', null,$t$);
+
+-- 2a. STC may pass any company, like ADMIN. Company HR still always get their own.
 select pg_temp.patch_function(
   coalesce(to_regprocedure('public.get_company_dashboard_base(text)'), 'public.get_company_dashboard(text)'::regprocedure),
   $t$elsif v_role = 'ADMIN' then$t$,
   $t$elsif v_role in ('ADMIN', 'STC') then$t$);
 
--- list_companies (every company, for the picker): TO FILL IN from check 0. Its definition is not in the
--- repo, so the exact ADMIN-only line is not known yet. Paste that line as the second argument and the
--- same line allowing ADMIN and STC as the third. Until then this call stops the script, changing nothing.
-select pg_temp.patch_function(
-  'public.list_companies()'::regprocedure,
-  $t$<<the ADMIN-only line in list_companies>>$t$,
-  $t$<<the same line allowing ADMIN and STC>>$t$);
+-- 2b. The company picker for STC: the companies get_company_dashboard can open (one row per company in
+-- _wave_stats(), the same source it uses), as [{company_id, name}]. Everyone else: the original, unchanged.
+alter function public.list_companies() rename to list_companies_base;
+revoke execute on function public.list_companies_base() from public, anon, authenticated;
+
+create function public.list_companies()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_role text;
+  v      jsonb;
+begin
+  select ur.role into v_role from user_roles ur where ur.user_id = auth.uid();
+  if v_role = 'STC' then
+    return coalesce((select jsonb_agg(jsonb_build_object('company_id', w.company_id, 'name', w.display_name)
+                                      order by w.display_name)
+                     from _wave_stats() w), '[]'::jsonb);
+  end if;
+  -- Same answer (and the same refusals) as before, whether the original returns json or rows.
+  if pg_get_function_result('public.list_companies_base()'::regprocedure) in ('json', 'jsonb') then
+    execute 'select public.list_companies_base()::jsonb' into v;
+  else
+    execute 'select coalesce(jsonb_agg(to_jsonb(b)), ''[]''::jsonb) from public.list_companies_base() b' into v;
+  end if;
+  return v;
+end;
+$$;
+
+revoke execute on function public.list_companies() from public, anon;
+grant execute on function public.list_companies() to authenticated;
 
 notify pgrst, 'reload schema';
 
 rollback;  -- change to COMMIT after review
 
 
--- After committing: npm run test:access (its STC section expects the company picker and company results
--- to work, and the Portfolio and the review queue to stay refused).
+-- After committing: npm run test:access. Its STC section expects the company picker and company results to
+-- work, and the Portfolio, the review queue and purchases to stay refused.
 --
--- To undo: run the same two patches with the second and third arguments swapped.
+-- To undo after a commit:
+--   begin;
+--   (create pg_temp.patch_function again, as above)
+--   select pg_temp.patch_function(<same function as above>, $t$elsif v_role in ('ADMIN', 'STC') then$t$, $t$elsif v_role = 'ADMIN' then$t$);
+--   select pg_temp.patch_function(<same function as above>, $t$'org', null,$t$, $t$'org', v_org,$t$);
+--   drop function public.list_companies();
+--   alter function public.list_companies_base() rename to list_companies;
+--   grant execute on function public.list_companies() to authenticated;
+--   notify pgrst, 'reload schema';
+--   commit;

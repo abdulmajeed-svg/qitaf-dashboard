@@ -1,5 +1,8 @@
 import type { ActionRow, Role } from "./types";
-import { LOCALE, type Dict, type Lang } from "./i18n";
+import type { Dict, Lang } from "./i18n"; // types only, so scripts/purchases.test.mjs can load this file directly
+
+// Dates: English as before; Arabic month names with the Gregorian calendar and Western digits.
+export const LOCALE: Record<Lang, string> = { en: "en-GB", ar: "ar-u-ca-gregory-nu-latn" };
 
 // One neutral purple scale (Qitaf light purple -> purple -> dark purple): the shade only reflects the value
 // (darker = higher), never good/bad. White text passes AA (7.7:1 or better) on every shade.
@@ -19,14 +22,16 @@ export const tileColors = (s: number): [string, string] => [shadeAt(s), "#FFFFFF
 export const DEFAULT_MIN_RESPONSES = 10;
 export const minResponses = (v: number | null | undefined) =>
   typeof v === "number" && v > 0 ? v : DEFAULT_MIN_RESPONSES;
+// Plain dates ("2026-11-08", e.g. due dates, purchase dates) are read as UTC midnight, so they are also
+// formatted in UTC: otherwise west of UTC 8 Nov would show as 7 Nov.
 export const fmtDate = (d: string | null | undefined, lang: Lang = "en") =>
-  d ? new Date(d).toLocaleDateString(LOCALE[lang], { day: "numeric", month: "short", year: "numeric" }) : "";
+  d ? new Date(d).toLocaleDateString(LOCALE[lang], { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "";
 
 // Thousands separators and Western digits in both languages: 12,500.
 export const fmtNumber = (n: number) => n.toLocaleString("en-US");
 
-export const fmtTime = (d: Date) =>
-  d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+// Today on the user's own clock, as YYYY-MM-DD (not UTC, which in Riyadh is still yesterday until 3 am).
+export const today = () => new Date().toLocaleDateString("en-CA");
 
 export const isOverdue = (a: ActionRow) =>
   a.status !== "Closed" && !!a.due_date && new Date(a.due_date) < new Date();

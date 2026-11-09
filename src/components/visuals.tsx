@@ -270,8 +270,7 @@ export function ErrorCard({ message, onRetry }: { message: string; onRetry: () =
 
 // Without onRefresh there is no Refresh button.
 export function PageHead({ title, info, sub, extra, onRefresh }: {
-  title: ReactNode; info?: MetricId; sub?: ReactNode; extra?: ReactNode; updated?: Date | null; onRefresh?: () => void;
-  fmt?: (d: Date) => string;
+  title: ReactNode; info?: MetricId; sub?: ReactNode; extra?: ReactNode; onRefresh?: () => void;
 }) {
   const { t } = useLang();
   return (

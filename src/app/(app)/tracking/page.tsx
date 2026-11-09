@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
-import { fmtTime } from "@/lib/format";
 import { useLang } from "@/lib/lang-context";
 import { useProfile } from "@/lib/profile-context";
 import type { CompanyRef, PointsTracking } from "@/lib/types";
@@ -47,7 +46,7 @@ function AdminTracking() {
 // Company HR: their own company's total and purchases.
 function OwnTracking() {
   const { t } = useLang();
-  const { data, error, updated, reload } = useRpcData<PointsTracking>(
+  const { data, error, reload } = useRpcData<PointsTracking>(
     () => rpc("get_points_tracking", { p_company: null }),
     "tracking:own",
   );
@@ -55,13 +54,16 @@ function OwnTracking() {
   if (!data) return <PageSkeleton rows={1} />;
   return (
     <>
-      <PageHead title={t.tracking.title} sub={t.tracking.sub} updated={updated} onRefresh={reload} fmt={fmtTime} />
+      <PageHead title={t.tracking.title} sub={t.tracking.sub} onRefresh={reload} />
       <PurchaseSummary data={data} empty={t.tracking.empty} />
     </>
   );
 }
 
-// STC has no Tracking page: the menu leaves it out, so /tracking redirects STC to the STC view.
+// STC has no Tracking page: the menu leaves it out, so /tracking redirects STC to the STC view, and this
+// never asks the database for STC either way.
 export default function TrackingPage() {
-  return useProfile().role === "ADMIN" ? <AdminTracking /> : <OwnTracking />;
+  const { role } = useProfile();
+  if (role === "STC") return null;
+  return role === "ADMIN" ? <AdminTracking /> : <OwnTracking />;
 }

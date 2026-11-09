@@ -13,7 +13,6 @@ export interface CompanyRef {
 }
 
 export type ReportStatus = "REPORTABLE" | "SUPPRESSED" | "NO_RESPONSES";
-export type OrgStatus = "SUBMITTED" | "NOT_SUBMITTED" | "NOT_APPLICABLE";
 
 export interface Item {
   code: string;
@@ -35,14 +34,6 @@ export type Barriers =
   | { suppressed: true; n: number }
   | BarrierCount[]
   | null;
-
-export interface OrgItem {
-  group: string;
-  code: string;
-  label: string;
-  score: number | null;
-  value: string | null;
-}
 
 export interface ActionRow {
   action_id?: string;
@@ -78,12 +69,6 @@ export interface CompanyDashboard {
   // Optional until get_company_dashboard returns it (see supabase/proposed-motivation.sql).
   // Counts; n = up + same + down, "Prefer not to answer" left out. Null when below the minimum.
   motivation?: { up: number; same: number; down: number; n: number } | null;
-  org: {
-    hr_status: OrgStatus;
-    it_status: OrgStatus;
-    finance_status: OrgStatus;
-    items: OrgItem[];
-  };
   actions: ActionRow[];
   generated_at: string;
 }
@@ -155,7 +140,8 @@ export interface PointsPurchase {
   note: string | null;
 }
 
-// get_points_tracking: Company HR always get their own company; Admin and STC all companies or the one asked for.
+// get_points_tracking: Company HR always get their own company; Admin all companies or the one asked for.
+// The dashboard never calls it for STC (see supabase/proposed-tracking-admin-hr-only.sql).
 export interface PointsTracking {
   scope: string;
   total_points: number;

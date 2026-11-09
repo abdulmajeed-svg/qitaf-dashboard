@@ -1,6 +1,7 @@
 // Dev/QA only. Not part of the app and never shipped to users.
 // Checks that each role (and anonymous visitors) can reach only what they should.
 // Run:  npm run test:access      (reads QA_* logins from .env.test.local, which is never committed)
+import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 // URL + publishable key come from .env.local if they are not already in the environment.
@@ -53,7 +54,6 @@ const PURCHASE = { p_company: "TEST-012", p_points: 1, p_date: new Date().toLoca
 
 /* ---------- Admin first: also gives us the real company names to look for in the STC data ---------- */
 let companyNames = [];
-let adminPurchaseCount = null;
 {
   const G = "ADMIN";
   const sb = await login(G, "QA_ADMIN_EMAIL", "QA_ADMIN_PASSWORD");
@@ -86,7 +86,6 @@ let adminPurchaseCount = null;
     const tracking = await sb.rpc("get_points_tracking", { p_company: "TEST-012" });
     check(G, "get_points_tracking('TEST-012') returns only TEST-012 purchases",
       !tracking.error && Array.isArray(tracking.data?.purchases) && tracking.data.purchases.every((p) => p.company_id === "TEST-012"), brief(tracking));
-    if (Array.isArray(tracking.data?.purchases)) adminPurchaseCount = tracking.data.purchases.length;
   }
 }
 
@@ -100,6 +99,8 @@ let adminPurchaseCount = null;
     const other = await sb.rpc("get_company_dashboard", { p_company: "TEST-015" });
     check(G, "get_company_dashboard('TEST-015') returns TEST-012, never TEST-015",
       !other.error && other.data?.company?.company_id === "TEST-012", other.error ? brief(other) : `got ${other.data?.company?.company_id}`);
+    // HR / IT assessment answers are no longer sent to anyone (supabase/proposed-stc-access.sql).
+    check(G, "get_company_dashboard sends no HR / IT assessment answers", !other.error && !other.data?.org, brief(other));
     const own = await sb.rpc("get_points_tracking", { p_company: "TEST-015" });
     check(G, "get_points_tracking('TEST-015') returns only TEST-012 purchases",
       !own.error && Array.isArray(own.data?.purchases) && own.data.purchases.every((p) => p.company_id === "TEST-012"), brief(own));
@@ -125,16 +126,15 @@ let adminPurchaseCount = null;
     check(G, "list_companies works", !list.error && Array.isArray(list.data), brief(list));
     const dash = await sb.rpc("get_company_dashboard", { p_company: "TEST-012" });
     check(G, "get_company_dashboard('TEST-012') works", !dash.error && dash.data?.company?.company_id === "TEST-012", brief(dash));
-    // STC has no Tracking page (the dashboard leaves it out of STC's menu), but reads a company's purchases
-    // in the Tracking tab of Company results.
-    const tracking = await sb.rpc("get_points_tracking", { p_company: "TEST-012" });
-    check(G, "get_points_tracking('TEST-012') works, only TEST-012, same purchases as ADMIN",
-      !tracking.error && Array.isArray(tracking.data?.purchases) && tracking.data.purchases.every((p) => p.company_id === "TEST-012")
-        && (adminPurchaseCount === null || tracking.data.purchases.length === adminPurchaseCount),
-      tracking.error ? brief(tracking) : `got ${tracking.data?.purchases?.length}, ADMIN got ${adminPurchaseCount}`);
-    await rpcErrors(G, sb, [["get_portfolio"], ["get_review_queue"], ["add_points_purchase", PURCHASE]]);
+    check(G, "get_company_dashboard sends no HR / IT assessment answers", !dash.error && !dash.data?.org, brief(dash));
+    // STC has no Tracking at all: purchases are refused (supabase/proposed-tracking-admin-hr-only.sql).
+    await rpcErrors(G, sb, [["get_portfolio"], ["get_review_queue"], ["get_points_tracking", { p_company: "TEST-012" }], ["add_points_purchase", PURCHASE]]);
     await tablesBlocked(G, sb);
   }
+  // No Tracking route for STC: /tracking is not in STC's menu, and the app sends any page outside it to the STC view.
+  const stcNav = readFileSync("src/lib/format.ts", "utf8").match(/\n  STC: \[([\s\S]*?)\n  \]/)?.[1];
+  check(G, "STC menu has no /tracking (so /tracking redirects to the STC view)", !!stcNav && !stcNav.includes("/tracking"),
+    stcNav ? "found /tracking in STC's menu" : "STC menu not found in src/lib/format.ts");
 }
 
 /* ---------- Anonymous (no login) ---------- */

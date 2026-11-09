@@ -13,19 +13,25 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   // Which message to show, so it follows a language switch.
-  const [error, setError] = useState<"" | "noAccess" | "wrongLogin">(params.get("msg") === "noaccess" ? "noAccess" : "");
+  const [error, setError] = useState<"" | "noAccess" | "wrongLogin" | "failed">(params.get("msg") === "noaccess" ? "noAccess" : "");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError("");
-    const { error } = await getSupabase().auth.signInWithPassword({ email: email.trim(), password });
-    if (error) {
-      setError("wrongLogin");
+    try {
+      const { error } = await getSupabase().auth.signInWithPassword({ email: email.trim(), password });
+      if (error) {
+        setError("wrongLogin");
+        setBusy(false);
+        return;
+      }
+      router.replace("/");
+    } catch (err) {
+      console.error(err); // e.g. missing Supabase settings: the details are for whoever deploys
+      setError("failed");
       setBusy(false);
-      return;
     }
-    router.replace("/");
   }
 
   return (

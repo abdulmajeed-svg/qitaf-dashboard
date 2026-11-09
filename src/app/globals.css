@@ -22,7 +22,6 @@
   --blue: #7333A3;            /* light purple: funnel mid */
   --silver: #8E9AA0;
   --blocks-off: #34264F;
-  --ref: #5B4A7A;
   --chip-ok-bg: #0F3B33; --chip-ok-fg: #5EEAC0;
   --chip-wait-bg: #3D3410; --chip-wait-fg: #FFDD40;
   --chip-bad-bg: #4A1426; --chip-bad-fg: #FF8FA6;
@@ -74,7 +73,6 @@ h2 { font-size: 17px; font-weight: 600; margin: 0; }
 /* Shell */
 .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand-mark { width: 38px; height: 38px; border-radius: 10px; background: var(--accent); display: grid; place-items: center; }
 .nav { display: flex; flex-wrap: wrap; gap: 6px; background: var(--panel); padding: 6px; border-radius: 12px; }
 .nav a { display: inline-flex; align-items: center; color: var(--soft); border-radius: 8px; padding: 0 16px; font-weight: 600; font-size: 13.5px; min-height: 40px; text-decoration: none; }
 .nav a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
@@ -102,7 +100,6 @@ h2 { font-size: 17px; font-weight: 600; margin: 0; }
 .track { position: relative; height: 4px; background: var(--line); border-radius: 99px; }
 .track .fill { height: 4px; border-radius: 99px; }
 .track .dot { position: absolute; top: -6px; width: 16px; height: 16px; margin-inline-start: -8px; border-radius: 99px; }
-.track .ref { position: absolute; left: 80%; top: -10px; height: 24px; border-left: 1px dashed var(--ref); }
 .score { text-align: end; font-weight: 600; }
 .hidden-score { text-align: end; color: var(--muted); font-size: 12px; }
 
@@ -125,10 +122,6 @@ h2 { font-size: 17px; font-weight: 600; margin: 0; }
 .chip-off { background: var(--chip-off-bg); color: var(--chip-off-fg); }
 .chip-bad { background: var(--chip-bad-bg); color: var(--chip-bad-fg); }
 
-.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
-.tile { border-radius: var(--radius-sm); padding: 14px; }
-.tile .t-label { font-size: 12px; opacity: .92; }
-.tile .t-val { font-size: 20px; font-weight: 500; margin-top: 2px; }
 
 .table-box { overflow-x: auto; }
 table { width: 100%; border-collapse: separate; border-spacing: 0 6px; min-width: 760px; }

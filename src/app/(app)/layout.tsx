@@ -23,13 +23,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const sb = getSupabase();
-      const { data } = await sb.auth.getSession();
-      if (!data.session) {
-        router.replace("/login");
-        return;
-      }
+      // Everything inside the try: a missing setting or network error shows a message instead of "Loading…" forever.
       try {
+        const sb = getSupabase();
+        const { data } = await sb.auth.getSession();
+        if (!data.session) {
+          router.replace("/login");
+          return;
+        }
         const p = await rpc<Profile | null>("my_profile");
         if (cancelled) return;
         if (!p || !p.role || !NAV[p.role]) {

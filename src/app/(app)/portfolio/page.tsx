@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import { rpc } from "@/lib/supabase";
 import { useRpcData } from "@/lib/use-rpc-data";
-import { ITEM_COLS, fmtDate, fmtTime, minResponses, tileColors } from "@/lib/format";
+import { ITEM_COLS, fmtDate, minResponses, tileColors, today } from "@/lib/format";
 import { DICT } from "@/lib/i18n";
 import { useLang } from "@/lib/lang-context";
-import { downloadCsv, today } from "@/lib/csv";
+import { downloadCsv } from "@/lib/csv";
 import type { CompanyDashboard, Portfolio, PortfolioCompany } from "@/lib/types";
 import {
   ActionsList, AnimatedNumber, BarrierPie, ErrorCard, H2, Kpi, PageHead, PageSkeleton, ReportChip, actionStatusText,
@@ -63,7 +63,7 @@ function DrawerBody({ company, onClose }: { company: PortfolioCompany; onClose: 
 
 export default function PortfolioPage() {
   const { t } = useLang();
-  const { data: d, error, updated, reload } = useRpcData<Portfolio>(() => rpc("get_portfolio"), "portfolio");
+  const { data: d, error, reload } = useRpcData<Portfolio>(() => rpc("get_portfolio"), "portfolio");
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>(null);
@@ -142,8 +142,7 @@ export default function PortfolioPage() {
 
   return (
     <>
-      <PageHead title={t.portfolio.title} sub={t.portfolio.sub}
-        updated={updated} onRefresh={reload} fmt={fmtTime} />
+      <PageHead title={t.portfolio.title} sub={t.portfolio.sub} onRefresh={reload} />
       <section className="grid-row">
         <Kpi label={t.portfolio.companies} info="portfolio.companies" value={<AnimatedNumber value={k.companies} />} watch={k.companies} note={t.portfolio.companiesNote(k.reportable)} />
         <Kpi label={t.portfolio.answers} info="portfolio.answers" value={<AnimatedNumber value={k.responses} />} watch={k.responses} note={t.portfolio.answersNote} />

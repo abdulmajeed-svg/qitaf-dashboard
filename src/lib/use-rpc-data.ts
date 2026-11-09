@@ -11,7 +11,6 @@ export const AUTO_REFRESH_SECONDS = 20;
 export function useRpcData<T>(fetcher: () => Promise<T>, key: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [updated, setUpdated] = useState<Date | null>(null);
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
   const toast = useToast();
@@ -33,10 +32,10 @@ export function useRpcData<T>(fetcher: () => Promise<T>, key: string | null) {
       prevSig.current = sig;
       setData(d);
       setError(null);
-      setUpdated(new Date());
     } catch (e) {
       if (gen !== generation.current) return;
-      setError(e instanceof Error ? e.message : tRef.current.common.somethingWrong);
+      // A failed background refresh keeps the last good data on screen; only a first load shows the error.
+      if (prevSig.current === null) setError(e instanceof Error ? e.message : tRef.current.common.somethingWrong);
     }
   }, []);
 
@@ -60,5 +59,5 @@ export function useRpcData<T>(fetcher: () => Promise<T>, key: string | null) {
     };
   }, [key, load]);
 
-  return { data, error, updated, reload: load };
+  return { data, error, reload: load };
 }
